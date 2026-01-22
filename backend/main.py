@@ -1,26 +1,24 @@
 import os
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware # <--- IMPORTANTE
-from pydantic import BaseModel
+import io
+import pypdf
+from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.middleware.cors import CORSMiddleware
 import spacy
 from groq import Groq 
 
 # --- CONFIGURAÇÃO DA CHAVE ---
-# Tenta pegar do ambiente (Render), se não tiver, usa a fixa (para teste local)
 MINHA_CHAVE = os.getenv("GROQ_API_KEY", "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")
-
 client = Groq(api_key=MINHA_CHAVE)
 
 app = FastAPI()
 
 # --- LIBERAR O ACESSO (CORS) ---
-# Isso permite que a Vercel converse com oOO Render
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Libera geral (para facilitar). Em produção real, você colocaria só a URL da Vercel.
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Libera todos os métodos (POST, GET, etc)
-    allow_headers=["*"],  # Libera todos os cabeçalhos
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # --- SPACY ---
@@ -32,22 +30,29 @@ except:
     os.system("python -m spacy download pt_core_news_md")
     nlp = spacy.load("pt_core_news_md")
 
-class Dados(BaseModel):
-    curriculo: str
-    vaga: str
-
 @app.post("/analisar")
-def analisar(dados: Dados):
-    print("📩 Recebendo pedido...")
+async def analisar(file: UploadFile = File(...), jobDescription: str = Form(...)):
+    print(f"📩 Recebendo arquivo: {file.filename}")
 
-    # 1. Nota Numérica
-    doc1 = nlp(dados.curriculo)
-    doc2 = nlp(dados.vaga)
+    # 1. Ler o PDF (Extrair texto)
+    try:
+        content = await file.read()
+        pdf_reader = pypdf.PdfReader(io.BytesIO(content))
+        texto_curriculo = ""
+        for page in pdf_reader.pages:
+            texto_curriculo += page.extract_text() or ""
+            
+        print(f"📄 Texto extraído (primeiros 50 chars): {texto_curriculo[:50]}...")
+    except Exception as e:
+        return {"nota": 0, "feedback": f"Erro ao ler PDF: {str(e)}"}
+
+    # 2. Calcular Nota (Similaridade)
+    doc1 = nlp(texto_curriculo)
+    doc2 = nlp(jobDescription)
     nota = round(doc1.similarity(doc2) * 100, 2)
 
-    # 2. Feedback
+    # 3. Gerar Feedback com IA
     feedback_texto = "Sem feedback."
-    
     try:
         chat_completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile", 
@@ -59,12 +64,12 @@ def analisar(dados: Dados):
                 {
                     "role": "user",
                     "content": f"""
-                    Compare este CV e esta Vaga.
+                    Analise este Candidato para esta Vaga.
                     Seja curto e direto (máximo 3 linhas).
-                    Cite 1 ponto forte e 1 ponto de melhoria (gap).
+                    Dê 1 ponto forte e 1 ponto de melhoria (gap).
 
-                    CV: {dados.curriculo[:3000]}
-                    VAGA: {dados.vaga[:3000]}
+                    CANDIDATO (Texto do PDF): {texto_curriculo[:3000]}
+                    VAGA: {jobDescription[:2000]}
                     """
                 }
             ],
