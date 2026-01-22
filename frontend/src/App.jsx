@@ -7,7 +7,7 @@ import { Login } from './Login';
 function App() {
   // --- ESTADOS GERAIS ---
   const [user, setUser] = useState(null); 
-  const [view, setView] = useState('new'); // 'new' ou 'history'
+  const [view, setView] = useState('new'); 
   const [history, setHistory] = useState([]); 
 
   // --- ESTADOS DO FORMULÁRIO ---
@@ -21,7 +21,7 @@ function App() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // 1. CARREGAR HISTÓRICO + TÍTULO DA ABA
+  // 1. CARREGAR HISTÓRICO
   useEffect(() => {
     const savedHistory = localStorage.getItem('tm_history');
     if (savedHistory) {
@@ -30,7 +30,7 @@ function App() {
     document.title = user ? "TalentMatch | Enterprise" : "Login | TalentMatch";
   }, [user]);
 
-  // 2. EFEITO DARK MODE
+  // 2. DARK MODE
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
@@ -39,7 +39,7 @@ function App() {
     }
   }, [darkMode]);
 
-  // --- FUNÇÃO PARA SALVAR NO HISTÓRICO ---
+  // --- SALVAR NO HISTÓRICO ---
   const saveToHistory = (analysisData, fileName, jobName) => {
     const newRecord = {
       id: Date.now(),
@@ -57,7 +57,15 @@ function App() {
     localStorage.setItem('tm_history', JSON.stringify(updatedHistory));
   };
 
-  // --- FUNÇÃO DE ANÁLISE ---
+  // --- APAGAR HISTÓRICO (NOVO!) ---
+  const clearHistory = () => {
+    if (window.confirm("⚠️ Tem certeza que deseja apagar todo o histórico de análises?")) {
+      setHistory([]);
+      localStorage.removeItem('tm_history');
+    }
+  };
+
+  // --- ANÁLISE ---
   const handleAnalyze = async () => {
     const hasJob = jobMode === 'text' ? jobDescription : jobFile;
     if (!file || !hasJob) {
@@ -80,7 +88,6 @@ function App() {
       if (!response.ok) throw new Error(data.error || "Erro desconhecido");
 
       setResult(data);
-      
       const jobName = jobMode === 'text' ? 'Vaga (Texto)' : jobFile.name;
       saveToHistory(data, file.name, jobName);
 
@@ -92,10 +99,9 @@ function App() {
     }
   };
 
-  // --- FUNÇÃO PARA CARREGAR HISTÓRICO ---
   const loadHistoryItem = (item) => {
     setResult(item.fullResult);
-    setFile({ name: item.candidateName }); // Restaura o nome para o PDF funcionar
+    setFile({ name: item.candidateName });
     setView('new');
   };
 
@@ -171,6 +177,15 @@ function App() {
                   : 'Consulte os relatórios gerados anteriormente.'}
               </p>
             </div>
+            {/* BOTÃO LIMPAR HISTÓRICO (SÓ APARECE NA TELA DE HISTÓRICO) */}
+            {view === 'history' && history.length > 0 && (
+              <button 
+                onClick={clearHistory}
+                className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 px-4 py-2 rounded-lg text-sm font-bold transition-colors flex items-center gap-2 border border-red-200 dark:border-red-900/30"
+              >
+                <span>🗑️</span> Limpar Tudo
+              </button>
+            )}
           </div>
 
           {/* === VISÃO 1: NOVA ANÁLISE === */}
@@ -247,26 +262,13 @@ function App() {
                   <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
                     <div className="bg-slate-50 dark:bg-slate-950/50 p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
                       <h3 className="font-bold text-slate-700 dark:text-slate-200">🤖 Mapa de Investigação</h3>
-                      
-                      {/* --- AQUI ESTÁ A ALTERAÇÃO DO NOME DO ARQUIVO --- */}
-                      <PDFDownloadLink 
-                        document={
-                            <ReportPDF 
-                                fileName={file?.name || result.candidateName} 
-                                jobMode={jobMode} 
-                                score={result.nota} 
-                                feedback={result.feedback} 
-                            />
-                        } 
-                        fileName={`TalentMatch_${file?.name || result.candidateName}`} 
-                      >
+                      <PDFDownloadLink document={<ReportPDF fileName={file?.name || result.candidateName} jobMode={jobMode} score={result.nota} feedback={result.feedback} />} fileName={`TalentMatch_${file?.name || result.candidateName}`}>
                         {({ loading }) => (
                           <button disabled={loading} className="text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-lg font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">
                             {loading ? '⏳...' : '📄 Baixar PDF'}
                           </button>
                         )}
                       </PDFDownloadLink>
-
                     </div>
                     <div className="p-8 prose prose-slate dark:prose-invert max-w-none">
                       <ReactMarkdown>{result.feedback}</ReactMarkdown>
