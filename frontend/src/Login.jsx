@@ -11,10 +11,10 @@ export function Login({ onLogin }) {
     if (email === 'teste@talentmatch.com' && password === 'teste123') {
       onLogin({ name: 'Usuário Teste', role: 'Recrutador Senior', avatar: 'UT' });
     } 
-    else if (email === 'carol@rh.com' && password === '123456') {
-      onLogin({ name: 'Carol Rocha', role: 'Gerente de RH', avatar: 'CR' });
+    else if (email === 'carol@talentmatch.com' && password === '123456') {
+      onLogin({ name: 'Carol Rocha', role: 'Product Manager', avatar: 'CR' });
     } 
-    else if (email === 'davi@tech.com' && password === 'admin123') {
+    else if (email === 'davifernandes@talentmatch.com' && password === 'admin123') {
       onLogin({ name: 'Davi Fernandes', role: 'Tech Lead', avatar: 'DF' });
     } 
     else {
