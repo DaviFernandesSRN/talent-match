@@ -28,7 +28,7 @@ function App() {
       setHistory(JSON.parse(savedHistory));
     }
     
-    // Título da página
+    // Título da página no navegador
     document.title = user ? "Dashboard | TalentMatch" : "Login | TalentMatch";
   }, [user]);
 
@@ -75,6 +75,7 @@ function App() {
     else formData.append('jobFile', jobFile);
 
     try {
+      // URL do Backend (Render)
       const apiUrl = 'https://talent-match-rc43.onrender.com/analisar'; 
       const response = await fetch(apiUrl, { method: 'POST', body: formData });
       const data = await response.json();
@@ -132,7 +133,7 @@ function App() {
             <span>🚀</span> Nova Análise
           </button>
           
-          {/* BOTÃO HISTÓRICO (AGORA FUNCIONA) */}
+          {/* BOTÃO HISTÓRICO */}
           <button 
             onClick={() => setView('history')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${view === 'history' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}
@@ -171,11 +172,11 @@ function App() {
 
         <div className="max-w-5xl mx-auto p-6 lg:p-12">
           
-          {/* TÍTULO DA PÁGINA */}
+          {/* TÍTULO DA PÁGINA (ATUALIZADO!) */}
           <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-2 tracking-tight">
-                {view === 'new' ? 'Painel de Auditoria' : 'Histórico de Análises'}
+                {view === 'new' ? 'Análise de Relatório' : 'Histórico de Análises'}
               </h2>
               <p className="text-slate-500 dark:text-slate-400">
                 {view === 'new' 
