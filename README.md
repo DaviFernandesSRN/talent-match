@@ -1,33 +1,66 @@
-# 🎯 TalentMatch MVP
+# 🎯 TalentMatch - AI Recruiter
 
-Aplicação Full-Stack que utiliza Inteligência Artificial (NLP) para analisar a aderência de um currículo (PDF) em relação a uma descrição de vaga.
+> Sistema inteligente de análise de currículos powered by Llama 3 (Groq) & NLP.
 
-![Status](https://img.shields.io/badge/Status-MVP_Complete-green)
+![Badge Status](https://img.shields.io/badge/Status-Concluído-green) ![React](https://img.shields.io/badge/Frontend-React-blue) ![Python](https://img.shields.io/badge/Backend-Python%20FastAPI-yellow)
 
-## 🏗 Arquitetura
+## 💻 Sobre o Projeto
 
-O projeto segue uma arquitetura de microsserviços simples:
+O **TalentMatch** é uma aplicação Fullstack que revoluciona o processo de triagem de candidatos. O sistema utiliza Processamento de Linguagem Natural (NLP) para calcular a compatibilidade semântica entre um currículo (PDF) e uma descrição de vaga, além de usar **Inteligência Artificial Generativa** para fornecer um feedback detalhado sobre pontos fortes e gaps do candidato.
 
-- **Frontend:** React + Vite + TailwindCSS (Interface do Usuário).
-- **Backend:** Node.js + Express (API Gateway, Processamento de PDF).
-- **Worker:** Python + FastAPI + Spacy (Motor de IA/NLP).
-
-## 🚀 Como Rodar o Projeto (Guia Rápido)
-
-Siga a ordem abaixo para iniciar os serviços. Você precisará de 3 terminais.
-
-### Pré-requisitos
-- Node.js (v18+)
-- Python (v3.12+)
+🔗 **Live Demo:** [Acesse o Projeto Online Aqui](https://talent-match-c3nh.vercel.app/)
 
 ---
 
-### Passo 1: Iniciar o Worker (IA) 🧠
-Este serviço roda na porta `8000`.
+## 🚀 Funcionalidades
 
-1. Acesse a pasta raiz.
-2. Crie e ative o ambiente virtual (se ainda não existir):
-   ```bash
-   # Windows
-   py -3.12 -m venv venv
-   .\venv\Scripts\activate
+- **Upload de PDF:** Leitura e extração automática de texto de currículos em formato PDF.
+- **Análise Semântica (NLP):** Utiliza a biblioteca `Spacy` para calcular uma nota de aderência (0-100%) baseada na similaridade vetorial entre o CV e a Vaga.
+- **Feedback com IA:** Integração com a API da `Groq` (modelo Llama-3.3-70b) para atuar como um recrutador sênior, citando pontos de melhoria reais.
+- **Interface Responsiva:** Frontend moderno construído com React e TailwindCSS.
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+### Frontend
+- **React.js** (Vite)
+- **TailwindCSS** (Estilização)
+- **Lucide React** (Ícones)
+
+### Backend
+- **Python 3**
+- **FastAPI** (API de alta performance)
+- **Spacy** (Processamento de Linguagem Natural - NLP)
+- **Groq API** (LLM Llama 3)
+- **PyPDF** (Leitura de arquivos)
+
+### Infraestrutura
+- **Render** (Hospedagem Backend Python)
+- **Vercel** (Hospedagem Frontend)
+
+---
+
+## 📦 Como rodar localmente
+
+Se quiser rodar este projeto no seu computador:
+
+### Pré-requisitos
+- Node.js e Python instalados.
+- Uma chave de API da Groq (Grátis).
+
+### 1. Backend (Servidor)
+```bash
+cd backend
+# Crie um ambiente virtual
+python -m venv venv
+# Ative o ambiente (Windows)
+.\venv\Scripts\activate
+# Instale as dependências
+pip install -r requirements.txt
+# Baixe o modelo de linguagem
+python -m spacy download pt_core_news_md
+# Rode o servidor
+uvicorn main:app --reload
+
+Desenvolvido por Davi Fernandes. Projeto criado para portfólio de Desenvolvimento Fullstack com IA.
