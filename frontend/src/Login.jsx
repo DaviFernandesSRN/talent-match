@@ -1,5 +1,30 @@
 import { useState } from 'react';
 
+// --- BANCO DE DADOS SIMULADO ---
+const USERS_DB = [
+  {
+    email: 'admin@talentmatch.com',
+    password: '123',
+    name: 'Davi Fernandes', // Coloque seu nome
+    role: 'CEO & Founder',
+    avatar: 'DF'
+  },
+  {
+    email: 'carol@talentmatch.com', // A PM do projeto
+    password: '123',
+    name: 'Carol Rocha',
+    role: 'Product Manager',
+    avatar: 'CR'
+  },
+  {
+    email: 'tech@talentmatch.com',
+    password: '123',
+    name: 'Recruiter Lead',
+    role: 'Tech Recruiter',
+    avatar: 'RL'
+  }
+];
+
 export function Login({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -11,21 +36,20 @@ export function Login({ onLogin }) {
     setLoading(true);
     setError('');
 
-    // Simulação de delay de rede
+    // Simula tempo de processamento
     setTimeout(() => {
-      // AQUI É O "BANCO DE DADOS" FAKE
-      // Você pode mudar essa senha para o que quiser
-      if (email === 'admin@talentmatch.com' && password === 'admin123') {
-        onLogin({
-          name: 'André Rodrigues', // Seu nome aqui
-          role: 'CTO & Founder',
-          avatar: 'AR'
-        });
+      // Procura o usuário na nossa lista "fake"
+      const userFound = USERS_DB.find(
+        (u) => u.email === email && u.password === password
+      );
+
+      if (userFound) {
+        onLogin(userFound); // Sucesso! Manda os dados pra dentro do App
       } else {
-        setError('Credenciais inválidas. Tente admin@talentmatch.com / admin123');
+        setError('Acesso negado. Verifique e-mail e senha.');
         setLoading(false);
       }
-    }, 1500);
+    }, 1000);
   };
 
   return (
@@ -61,13 +85,13 @@ export function Login({ onLogin }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all placeholder-slate-600"
-              placeholder="••••••••"
+              placeholder="••••"
             />
           </div>
 
           {error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm text-center">
-              {error}
+            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm text-center flex items-center justify-center gap-2">
+              <span>🚫</span> {error}
             </div>
           )}
 
@@ -80,8 +104,14 @@ export function Login({ onLogin }) {
           </button>
         </form>
 
+        {/* Dica visual para facilitar seus testes (opcional, pode remover depois) */}
         <div className="mt-8 pt-6 border-t border-slate-800 text-center">
-          <p className="text-slate-500 text-xs">Protegido por criptografia Enterprise Grade</p>
+          <p className="text-slate-600 text-xs mb-2">Dica para Teste:</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            <span className="px-2 py-1 bg-slate-800 rounded text-xs text-slate-400">admin@talentmatch.com</span>
+            <span className="px-2 py-1 bg-slate-800 rounded text-xs text-slate-400">carol@talentmatch.com</span>
+            <span className="px-2 py-1 bg-slate-800 rounded text-xs text-slate-400">Senha: 123</span>
+          </div>
         </div>
       </div>
     </div>
