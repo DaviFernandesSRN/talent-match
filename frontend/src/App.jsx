@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import { ReportPDF } from './ReportPDF'; // <--- Importando o gerador de PDF
+import { ReportPDF } from './ReportPDF';
 
 function App() {
   const [file, setFile] = useState(null);
@@ -15,11 +15,10 @@ function App() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    document.title = "TalentMatch | Recrutador IA";
+    document.title = "TalentMatch | Enterprise Dashboard";
   }, []);
 
   const handleAnalyze = async () => {
-    // Validação: Tem currículo? Tem vaga (texto ou arquivo)?
     const hasJob = jobMode === 'text' ? jobDescription : jobFile;
     
     if (!file || !hasJob) {
@@ -33,7 +32,6 @@ function App() {
     const formData = new FormData();
     formData.append('file', file);
 
-    // Envia só o que o usuário escolheu na aba
     if (jobMode === 'text') {
       formData.append('jobDescription', jobDescription);
     } else {
@@ -41,7 +39,8 @@ function App() {
     }
 
     try {
-      const apiUrl = 'https://talent-match-rc43.onrender.com/analisar';
+      // URL do seu backend (ajuste se estiver testando local)
+      const apiUrl = 'https://talent-match-rc43.onrender.com/analisar'; 
       const response = await fetch(apiUrl, { method: 'POST', body: formData });
       const data = await response.json();
 
@@ -57,194 +56,209 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-500">
+    <div className="flex h-screen bg-slate-50 dark:bg-slate-900 font-sans overflow-hidden">
       
-      {/* HEADER */}
-      <nav className="w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-indigo-100 dark:border-slate-700 sticky top-0 z-50 transition-colors duration-500">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-3xl">🎯</span>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">TalentMatch</h1>
-          </div>
-          <div className="text-xs font-semibold text-indigo-400 dark:text-indigo-300 uppercase tracking-wider hidden sm:block">
-            Powered by AI Llama 3
+      {/* 1. SIDEBAR (BARRA LATERAL) - O "Cockpit" */}
+      <aside className="w-64 bg-slate-900 text-white flex flex-col shadow-2xl z-20 hidden md:flex">
+        <div className="p-6 border-b border-slate-800 flex items-center gap-3">
+          <span className="text-2xl">🎯</span>
+          <h1 className="text-xl font-bold tracking-tight">TalentMatch <span className="text-xs text-indigo-400 block font-normal">Enterprise Edition</span></h1>
+        </div>
+        
+        <nav className="flex-1 p-4 space-y-2">
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-2">Menu Principal</div>
+          <button className="w-full flex items-center gap-3 px-4 py-3 bg-indigo-600 rounded-xl text-white font-medium shadow-lg shadow-indigo-900/50">
+            <span>🚀</span> Nova Análise
+          </button>
+          <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-colors">
+            <span>📂</span> Histórico
+          </button>
+          <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-colors">
+            <span>⚙️</span> Configurações
+          </button>
+        </nav>
+
+        <div className="p-4 border-t border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center font-bold">A</div>
+            <div>
+              <p className="text-sm font-medium">Admin User</p>
+              <p className="text-xs text-slate-500">Recruiter Lead</p>
+            </div>
           </div>
         </div>
-      </nav>
+      </aside>
 
-      <main className="max-w-5xl mx-auto px-6 py-12 flex flex-col items-center">
-        <div className="text-center mb-12 max-w-2xl">
-          <h2 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight">
-            Encontre o candidato <br/><span className="text-indigo-600 dark:text-indigo-400">perfeito em segundos.</span>
-          </h2>
-          <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
-            Análise semântica avançada de currículos e vagas com Inteligência Artificial.
-          </p>
-        </div>
+      {/* 2. ÁREA PRINCIPAL (MAIN CONTENT) */}
+      <main className="flex-1 overflow-y-auto relative">
+        {/* Header Mobile (Só aparece em telas pequenas) */}
+        <header className="md:hidden bg-slate-900 text-white p-4 flex justify-between items-center">
+          <span className="font-bold">TalentMatch</span>
+          <span>☰</span>
+        </header>
 
-        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+        <div className="max-w-5xl mx-auto p-6 lg:p-12">
           
-          {/* 1. CARD CANDIDATO */}
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-xl border border-indigo-50 dark:border-slate-700 transition-colors duration-500">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-300">📄</div>
-              <label className="font-bold text-lg text-slate-700 dark:text-slate-200">1. Currículo (PDF)</label>
-            </div>
-            <div className="relative group h-64">
-              <input type="file" accept=".pdf" onChange={(e) => setFile(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-              <div className={`border-2 border-dashed rounded-2xl h-full flex flex-col items-center justify-center text-center p-6 transition-all 
-                ${file 
-                  ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 dark:border-indigo-400' 
-                  : 'border-slate-200 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-700'
-                }`}>
-                {file ? (
-                  <>
-                    <span className="text-5xl mb-4 animate-bounce">📎</span>
-                    <p className="font-semibold text-indigo-700 dark:text-indigo-300 text-lg truncate w-full">{file.name}</p>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-5xl mb-4 text-slate-300 dark:text-slate-500">☁️</span>
-                    <p className="font-medium text-slate-600 dark:text-slate-300 text-lg">Arraste o Currículo</p>
-                  </>
-                )}
-              </div>
-            </div>
+          <div className="mb-10">
+            <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">Painel de Recrutamento</h2>
+            <p className="text-slate-500 dark:text-slate-400">Configure os parâmetros abaixo para iniciar a análise de aderência.</p>
           </div>
 
-          {/* 2. CARD VAGA (COM ABAS) */}
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-xl border border-purple-50 dark:border-slate-700 transition-colors duration-500 flex flex-col">
-            
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg text-purple-600 dark:text-purple-300">💼</div>
-                <label className="font-bold text-lg text-slate-700 dark:text-slate-200">2. Vaga</label>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* INPUT CURRÍCULO */}
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+              <div className="flex justify-between items-center mb-4">
+                <label className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                  <span className="bg-indigo-100 dark:bg-indigo-900 p-1 rounded text-indigo-600">1</span> Currículo (Candidato)
+                </label>
               </div>
-              
-              {/* BOTÕES DE ABA */}
-              <div className="flex bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
-                <button 
-                  onClick={() => setJobMode('text')}
-                  className={`px-3 py-1 text-sm font-bold rounded-md transition-all ${jobMode === 'text' ? 'bg-white dark:bg-slate-600 text-purple-600 dark:text-purple-300 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                >
-                  Texto
-                </button>
-                <button 
-                  onClick={() => setJobMode('pdf')}
-                  className={`px-3 py-1 text-sm font-bold rounded-md transition-all ${jobMode === 'pdf' ? 'bg-white dark:bg-slate-600 text-purple-600 dark:text-purple-300 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                >
-                  PDF
-                </button>
-              </div>
-            </div>
-
-            {/* CONTEÚDO DA VAGA (Muda conforme a aba) */}
-            {jobMode === 'text' ? (
-              <textarea
-                className="w-full h-64 p-4 rounded-2xl border-2 border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:bg-white dark:focus:bg-slate-800 focus:border-purple-500 dark:focus:border-purple-400 outline-none resize-none transition-all text-slate-600 dark:text-slate-200"
-                placeholder="Cole os requisitos da vaga aqui..."
-                value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
-              ></textarea>
-            ) : (
-              <div className="relative group h-64">
-                <input type="file" accept=".pdf" onChange={(e) => setJobFile(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                <div className={`border-2 border-dashed rounded-2xl h-full flex flex-col items-center justify-center text-center p-6 transition-all 
-                  ${jobFile 
-                    ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 dark:border-purple-400' 
-                    : 'border-slate-200 dark:border-slate-600 hover:border-purple-400 dark:hover:border-purple-400 hover:bg-slate-50 dark:hover:bg-slate-700'
+              <div className="relative group h-40">
+                <input type="file" accept=".pdf" onChange={(e) => setFile(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                <div className={`border-2 border-dashed rounded-xl h-full flex flex-col items-center justify-center text-center p-4 transition-all 
+                  ${file 
+                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' 
+                    : 'border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'
                   }`}>
-                  {jobFile ? (
-                    <>
-                      <span className="text-5xl mb-4 animate-bounce text-purple-500">📎</span>
-                      <p className="font-semibold text-purple-700 dark:text-purple-300 text-lg truncate w-full">{jobFile.name}</p>
-                      <p className="text-xs text-purple-400 mt-2">PDF da Vaga selecionado</p>
-                    </>
+                  {file ? (
+                    <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300 font-medium">
+                      <span>📄</span> {file.name}
+                    </div>
                   ) : (
-                    <>
-                      <span className="text-5xl mb-4 text-slate-300 dark:text-slate-500">☁️</span>
-                      <p className="font-medium text-slate-600 dark:text-slate-300 text-lg">Arraste o PDF da Vaga</p>
-                    </>
+                    <span className="text-slate-400 text-sm">Arraste ou clique para enviar PDF</span>
                   )}
                 </div>
               </div>
-            )}
-          </div>
-        </div>
+            </div>
 
-        <button onClick={handleAnalyze} disabled={loading} className={`w-full md:w-auto px-12 py-5 rounded-full font-bold text-lg text-white shadow-lg transition-all hover:-translate-y-1 ${loading ? "bg-slate-400 cursor-wait" : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:shadow-indigo-500/50"}`}>
-          {loading ? "Analisando..." : "✨ Analisar Compatibilidade"}
-        </button>
-
-        {/* RESULTADO + BOTÃO DOWNLOAD */}
-        {result && (
-          <div className="mt-16 w-full max-w-3xl animate-fade-in-up">
-            <div className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-700">
-              
-              {/* Score Header */}
-              <div className={`${result.nota >= 70 ? 'bg-green-50 dark:bg-green-900/20' : result.nota >= 50 ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-red-50 dark:bg-red-900/20'} p-10 text-center border-b border-slate-100 dark:border-slate-700`}>
-                <p className="text-slate-500 dark:text-slate-400 uppercase tracking-widest text-xs font-bold mb-4">Match Score</p>
-                <div className={`text-7xl font-black mb-2 ${result.nota >= 70 ? 'text-green-600 dark:text-green-400' : result.nota >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {result.nota}%
+            {/* INPUT VAGA */}
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+              <div className="flex justify-between items-center mb-4">
+                <label className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                  <span className="bg-purple-100 dark:bg-purple-900 p-1 rounded text-purple-600">2</span> Descrição da Vaga
+                </label>
+                <div className="flex bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
+                  <button onClick={() => setJobMode('text')} className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${jobMode === 'text' ? 'bg-white text-purple-600 shadow-sm' : 'text-slate-400'}`}>Texto</button>
+                  <button onClick={() => setJobMode('pdf')} className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${jobMode === 'pdf' ? 'bg-white text-purple-600 shadow-sm' : 'text-slate-400'}`}>PDF</button>
                 </div>
-                <p className="text-slate-600 dark:text-slate-300 font-medium text-lg">
-                  {result.nota >= 70 ? "🚀 Excelente Aderência" : result.nota >= 50 ? "⚠️ Aderência Média" : "❌ Baixa Aderência"}
-                </p>
               </div>
 
-              {/* Feedback da IA */}
-              <div className="p-10 bg-white dark:bg-slate-800">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400">🤖</div>
-                  <h3 className="font-bold text-slate-800 dark:text-white text-lg">Análise da IA</h3>
+              {jobMode === 'text' ? (
+                <textarea
+                  className="w-full h-40 p-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm focus:ring-2 focus:ring-purple-500 outline-none resize-none dark:text-white"
+                  placeholder="Cole os requisitos aqui..."
+                  value={jobDescription}
+                  onChange={(e) => setJobDescription(e.target.value)}
+                ></textarea>
+              ) : (
+                <div className="relative group h-40">
+                  <input type="file" accept=".pdf" onChange={(e) => setJobFile(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                  <div className={`border-2 border-dashed rounded-xl h-full flex flex-col items-center justify-center text-center p-4 transition-all 
+                    ${jobFile 
+                      ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' 
+                      : 'border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700'
+                    }`}>
+                    {jobFile ? (
+                      <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300 font-medium">
+                        <span>💼</span> {jobFile.name}
+                      </div>
+                    ) : (
+                      <span className="text-slate-400 text-sm">Arraste o PDF da Vaga</span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ACTION BAR */}
+          <div className="flex justify-end mb-12 border-b border-slate-200 dark:border-slate-700 pb-8">
+            <button 
+              onClick={handleAnalyze} 
+              disabled={loading} 
+              className={`flex items-center gap-2 px-8 py-3 rounded-lg font-bold text-white shadow-lg transition-all transform active:scale-95
+                ${loading ? "bg-slate-400 cursor-wait" : "bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-500/30"}
+              `}
+            >
+              {loading ? (
+                <>⏳ Processando IA...</>
+              ) : (
+                <>✨ Executar Análise de Match</>
+              )}
+            </button>
+          </div>
+
+          {/* RESULTADOS (DASHBOARD STYLE) */}
+          {result && (
+            <div className="animate-fade-in-up space-y-6 pb-20">
+              
+              {/* SCORE CARD COM PROGRESS BAR */}
+              <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-center gap-8">
+                <div className="text-center md:text-left min-w-[200px]">
+                  <p className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-1">Aderência Geral</p>
+                  <div className="text-5xl font-black text-slate-800 dark:text-white">{result.nota}%</div>
                 </div>
                 
-                <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 leading-relaxed">
-                  <ReactMarkdown 
-                    components={{
-                      strong: ({node, ...props}) => <span className="font-bold text-indigo-700 dark:text-indigo-400" {...props} />,
-                      p: ({node, ...props}) => <p className="mb-4 last:mb-0" {...props} />
-                    }}
-                  >
-                    {result.feedback}
-                  </ReactMarkdown>
+                {/* A Barra de Progresso Visual que a Carol pediu */}
+                <div className="flex-1 w-full">
+                   <div className="flex justify-between text-sm mb-2 font-medium">
+                      <span className="text-red-500">Baixa</span>
+                      <span className="text-yellow-500">Média</span>
+                      <span className="text-green-500">Alta</span>
+                   </div>
+                   <div className="w-full h-4 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-1000 ease-out ${
+                          result.nota >= 70 ? 'bg-gradient-to-r from-green-500 to-emerald-400' : 
+                          result.nota >= 50 ? 'bg-gradient-to-r from-yellow-400 to-orange-400' : 
+                          'bg-gradient-to-r from-red-500 to-pink-500'
+                        }`}
+                        style={{ width: `${result.nota}%` }}
+                      ></div>
+                   </div>
+                   <p className="mt-3 text-slate-600 dark:text-slate-400 text-sm">
+                      {result.nota >= 70 ? "✅ Candidato altamente recomendado para a fase de entrevistas." : 
+                       result.nota >= 50 ? "⚠️ Candidato com potencial, mas requer validação técnica." : 
+                       "❌ Perfil distante dos requisitos mandatórios."}
+                   </p>
                 </div>
               </div>
 
-              {/* BOTÃO EXPORTAR PDF (Rodapé do Card) */}
-              <div className="bg-slate-50 dark:bg-slate-900 px-10 py-6 border-t border-slate-100 dark:border-slate-700 flex justify-end">
-                <PDFDownloadLink
-                  document={
-                    <ReportPDF 
-                      fileName={file?.name} 
-                      jobMode={jobMode} 
-                      score={result.nota} 
-                      feedback={result.feedback} 
-                    />
-                  }
-                  fileName={`TalentMatch_${file?.name ? file.name.split('.')[0] : 'Relatorio'}.pdf`}
-                >
-                  {({ loading }) => (
-                    <button 
-                      disabled={loading}
-                      className="flex items-center gap-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-700 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg hover:-translate-y-1"
-                    >
-                      {loading ? 'Gerando PDF...' : (
-                        <>
-                          <span>📄</span> Baixar Parecer Técnico
-                        </>
-                      )}
-                    </button>
-                  )}
-                </PDFDownloadLink>
+              {/* REPORT CARD */}
+              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div className="bg-slate-50 dark:bg-slate-900/50 p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                  <h3 className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                    🤖 Parecer Técnico da IA
+                  </h3>
+                  
+                  {/* BOTÃO EXPORTAR PDF */}
+                  <PDFDownloadLink
+                    document={
+                      <ReportPDF 
+                        fileName={file?.name} 
+                        jobMode={jobMode} 
+                        score={result.nota} 
+                        feedback={result.feedback} 
+                      />
+                    }
+                    fileName={`TalentMatch_Report.pdf`}
+                  >
+                    {({ loading }) => (
+                      <button disabled={loading} className="text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 px-3 py-1.5 rounded-md shadow-sm hover:bg-slate-50 transition-colors text-slate-600 dark:text-slate-200 font-medium">
+                        {loading ? 'Gerando...' : '📥 Baixar PDF'}
+                      </button>
+                    )}
+                  </PDFDownloadLink>
+                </div>
+                
+                <div className="p-8 prose prose-slate dark:prose-invert max-w-none">
+                  <ReactMarkdown>{result.feedback}</ReactMarkdown>
+                </div>
               </div>
 
             </div>
-          </div>
-        )}
-
+          )}
+        </div>
       </main>
-      <footer className="text-center py-8 text-slate-400 dark:text-slate-600 text-sm">&copy; 2024 TalentMatch AI</footer>
     </div>
   );
 }
