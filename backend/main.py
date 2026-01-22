@@ -92,9 +92,9 @@ async def analisar(
                     * 📈 **Evidência Positiva:** [Ex: Menção a métricas ou liderança técnica.]
 
                     ## 🎯 Pontos de Investigação (O Pulo do Gato)
-                    * **Ponto 1:** [Citar algo presente ou ausente no CV] Investigar como ele [pergunta de investigação].
-                    * **Ponto 2:** [Citar ponto de conflito com a vaga] Investigar como ele [pergunta de investigação].
-                    * **Ponto 3:** [Citar gap técnico específico] Investigar como ele [pergunta de investigação].
+                    * **Ponto 1:** [Citar evidência do CV] Investigar como ele [pergunta para o entrevistador].
+                    * **Ponto 2:** [Citar gap de experiência] Investigar como ele [pergunta para o entrevistador].
+                    * **Ponto 3:** [Citar competência necessária] Investigar como ele [pergunta para o entrevistador].
                     """
                 },
                 {
@@ -103,7 +103,7 @@ async def analisar(
                 }
             ],
             temperature=0.1, 
-            max_tokens=800
+            max_tokens=850
         )
         feedback_texto = chat_completion.choices[0].message.content
     except Exception as e:
