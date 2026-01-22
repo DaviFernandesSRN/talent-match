@@ -1,16 +1,27 @@
 import os
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware # <--- IMPORTANTE
 from pydantic import BaseModel
 import spacy
 from groq import Groq 
 
-# --- SUA CHAVE GROQ ---
-# Mantendo sua chave que está funcionando
-MINHA_CHAVE = "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"
+# --- CONFIGURAÇÃO DA CHAVE ---
+# Tenta pegar do ambiente (Render), se não tiver, usa a fixa (para teste local)
+MINHA_CHAVE = os.getenv("GROQ_API_KEY", "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")
 
 client = Groq(api_key=MINHA_CHAVE)
 
 app = FastAPI()
+
+# --- LIBERAR O ACESSO (CORS) ---
+# Isso permite que a Vercel converse com o Render
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Libera geral (para facilitar). Em produção real, você colocaria só a URL da Vercel.
+    allow_credentials=True,
+    allow_methods=["*"],  # Libera todos os métodos (POST, GET, etc)
+    allow_headers=["*"],  # Libera todos os cabeçalhos
+)
 
 # --- SPACY ---
 try:
@@ -27,7 +38,7 @@ class Dados(BaseModel):
 
 @app.post("/analisar")
 def analisar(dados: Dados):
-    print("📩 Enviando para Groq (Llama 3.3)...")
+    print("📩 Recebendo pedido...")
 
     # 1. Nota Numérica
     doc1 = nlp(dados.curriculo)
@@ -39,7 +50,6 @@ def analisar(dados: Dados):
     
     try:
         chat_completion = client.chat.completions.create(
-            # ATUALIZADO: Usando o modelo mais novo e potente da Groq
             model="llama-3.3-70b-versatile", 
             messages=[
                 {
@@ -59,13 +69,12 @@ def analisar(dados: Dados):
                 }
             ],
         )
-
         feedback_texto = chat_completion.choices[0].message.content
-        print("✅ Sucesso! Resposta recebida da Groq.")
+        print("✅ Sucesso! Groq respondeu.")
 
     except Exception as e:
         print(f"❌ Erro Groq: {e}")
-        feedback_texto = "Erro ao conectar com a API Groq. Verifique o terminal."
+        feedback_texto = "Erro ao conectar com a IA."
 
     return {
         "nota": nota,
