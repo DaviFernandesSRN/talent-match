@@ -57,7 +57,7 @@ function App() {
     localStorage.setItem('tm_history', JSON.stringify(updatedHistory));
   };
 
-  // --- APAGAR HISTÓRICO (NOVO!) ---
+  // --- LIMPAR HISTÓRICO ---
   const clearHistory = () => {
     if (window.confirm("⚠️ Tem certeza que deseja apagar todo o histórico de análises?")) {
       setHistory([]);
@@ -171,13 +171,14 @@ function App() {
               <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-2 tracking-tight">
                 {view === 'new' ? 'Análise de Relatório' : 'Histórico de Análises'}
               </h2>
+              {/* --- ALTERAÇÃO AQUI: TEXTO GENÉRICO E LIMPO --- */}
               <p className="text-slate-500 dark:text-slate-400">
                 {view === 'new' 
-                  ? `Olá, ${user.name.split(' ')[0]}. Configure a análise abaixo.` 
+                  ? 'Configure os parâmetros para iniciar a auditoria.' 
                   : 'Consulte os relatórios gerados anteriormente.'}
               </p>
             </div>
-            {/* BOTÃO LIMPAR HISTÓRICO (SÓ APARECE NA TELA DE HISTÓRICO) */}
+            {/* BOTÃO LIMPAR HISTÓRICO */}
             {view === 'history' && history.length > 0 && (
               <button 
                 onClick={clearHistory}
@@ -262,13 +263,25 @@ function App() {
                   <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
                     <div className="bg-slate-50 dark:bg-slate-950/50 p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
                       <h3 className="font-bold text-slate-700 dark:text-slate-200">🤖 Mapa de Investigação</h3>
-                      <PDFDownloadLink document={<ReportPDF fileName={file?.name || result.candidateName} jobMode={jobMode} score={result.nota} feedback={result.feedback} />} fileName={`TalentMatch_${file?.name || result.candidateName}`}>
+                      
+                      <PDFDownloadLink 
+                        document={
+                            <ReportPDF 
+                                fileName={file?.name || result.candidateName} 
+                                jobMode={jobMode} 
+                                score={result.nota} 
+                                feedback={result.feedback} 
+                            />
+                        } 
+                        fileName={`TalentMatch_${file?.name || result.candidateName}`} 
+                      >
                         {({ loading }) => (
                           <button disabled={loading} className="text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-lg font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">
                             {loading ? '⏳...' : '📄 Baixar PDF'}
                           </button>
                         )}
                       </PDFDownloadLink>
+
                     </div>
                     <div className="p-8 prose prose-slate dark:prose-invert max-w-none">
                       <ReactMarkdown>{result.feedback}</ReactMarkdown>
