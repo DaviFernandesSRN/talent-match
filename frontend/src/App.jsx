@@ -3,7 +3,12 @@ import ReactMarkdown from 'react-markdown';
 
 function App() {
   const [file, setFile] = useState(null);
+  
+  // Novos estados para controlar as abas
+  const [jobMode, setJobMode] = useState('text'); // 'text' ou 'pdf'
   const [jobDescription, setJobDescription] = useState('');
+  const [jobFile, setJobFile] = useState(null);
+
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -12,8 +17,11 @@ function App() {
   }, []);
 
   const handleAnalyze = async () => {
-    if (!file || !jobDescription) {
-      alert("⚠️ Por favor, anexe o PDF e preencha a vaga.");
+    // Validação: Tem currículo? Tem vaga (texto ou arquivo)?
+    const hasJob = jobMode === 'text' ? jobDescription : jobFile;
+    
+    if (!file || !hasJob) {
+      alert("⚠️ Por favor, anexe o Currículo e os dados da Vaga.");
       return;
     }
 
@@ -22,7 +30,13 @@ function App() {
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('jobDescription', jobDescription);
+
+    // Envia só o que o usuário escolheu
+    if (jobMode === 'text') {
+      formData.append('jobDescription', jobDescription);
+    } else {
+      formData.append('jobFile', jobFile);
+    }
 
     try {
       const apiUrl = 'https://talent-match-rc43.onrender.com/analisar';
@@ -41,7 +55,6 @@ function App() {
   };
 
   return (
-    // Fundo: Claro (Degradê suave) | Escuro (Slate 900 profundo)
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-500">
       
       {/* HEADER */}
@@ -69,7 +82,7 @@ function App() {
 
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
           
-          {/* CARD UPLOAD */}
+          {/* 1. CARD CANDIDATO */}
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-xl border border-indigo-50 dark:border-slate-700 transition-colors duration-500">
             <div className="flex items-center gap-3 mb-6">
               <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-300">📄</div>
@@ -85,30 +98,75 @@ function App() {
                 {file ? (
                   <>
                     <span className="text-5xl mb-4 animate-bounce">📎</span>
-                    <p className="font-semibold text-indigo-700 dark:text-indigo-300 text-lg">{file.name}</p>
+                    <p className="font-semibold text-indigo-700 dark:text-indigo-300 text-lg truncate w-full">{file.name}</p>
                   </>
                 ) : (
                   <>
                     <span className="text-5xl mb-4 text-slate-300 dark:text-slate-500">☁️</span>
-                    <p className="font-medium text-slate-600 dark:text-slate-300 text-lg">Arraste seu PDF aqui</p>
+                    <p className="font-medium text-slate-600 dark:text-slate-300 text-lg">Arraste o Currículo</p>
                   </>
                 )}
               </div>
             </div>
           </div>
 
-          {/* CARD VAGA */}
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-xl border border-purple-50 dark:border-slate-700 transition-colors duration-500">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg text-purple-600 dark:text-purple-300">💼</div>
-              <label className="font-bold text-lg text-slate-700 dark:text-slate-200">2. Descrição da Vaga</label>
+          {/* 2. CARD VAGA (COM ABAS) */}
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-xl border border-purple-50 dark:border-slate-700 transition-colors duration-500 flex flex-col">
+            
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg text-purple-600 dark:text-purple-300">💼</div>
+                <label className="font-bold text-lg text-slate-700 dark:text-slate-200">2. Vaga</label>
+              </div>
+              
+              {/* BOTÕES DE ABA */}
+              <div className="flex bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
+                <button 
+                  onClick={() => setJobMode('text')}
+                  className={`px-3 py-1 text-sm font-bold rounded-md transition-all ${jobMode === 'text' ? 'bg-white dark:bg-slate-600 text-purple-600 dark:text-purple-300 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                >
+                  Texto
+                </button>
+                <button 
+                  onClick={() => setJobMode('pdf')}
+                  className={`px-3 py-1 text-sm font-bold rounded-md transition-all ${jobMode === 'pdf' ? 'bg-white dark:bg-slate-600 text-purple-600 dark:text-purple-300 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                >
+                  PDF
+                </button>
+              </div>
             </div>
-            <textarea
-              className="w-full h-64 p-4 rounded-2xl border-2 border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:bg-white dark:focus:bg-slate-800 focus:border-purple-500 dark:focus:border-purple-400 outline-none resize-none transition-all text-slate-600 dark:text-slate-200"
-              placeholder="Cole os requisitos da vaga..."
-              value={jobDescription}
-              onChange={(e) => setJobDescription(e.target.value)}
-            ></textarea>
+
+            {/* CONTEÚDO DA VAGA (Muda conforme a aba) */}
+            {jobMode === 'text' ? (
+              <textarea
+                className="w-full h-64 p-4 rounded-2xl border-2 border-slate-100 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:bg-white dark:focus:bg-slate-800 focus:border-purple-500 dark:focus:border-purple-400 outline-none resize-none transition-all text-slate-600 dark:text-slate-200"
+                placeholder="Cole os requisitos da vaga aqui..."
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+              ></textarea>
+            ) : (
+              <div className="relative group h-64">
+                <input type="file" accept=".pdf" onChange={(e) => setJobFile(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                <div className={`border-2 border-dashed rounded-2xl h-full flex flex-col items-center justify-center text-center p-6 transition-all 
+                  ${jobFile 
+                    ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 dark:border-purple-400' 
+                    : 'border-slate-200 dark:border-slate-600 hover:border-purple-400 dark:hover:border-purple-400 hover:bg-slate-50 dark:hover:bg-slate-700'
+                  }`}>
+                  {jobFile ? (
+                    <>
+                      <span className="text-5xl mb-4 animate-bounce text-purple-500">📎</span>
+                      <p className="font-semibold text-purple-700 dark:text-purple-300 text-lg truncate w-full">{jobFile.name}</p>
+                      <p className="text-xs text-purple-400 mt-2">PDF da Vaga selecionado</p>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-5xl mb-4 text-slate-300 dark:text-slate-500">☁️</span>
+                      <p className="font-medium text-slate-600 dark:text-slate-300 text-lg">Arraste o PDF da Vaga</p>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -116,12 +174,10 @@ function App() {
           {loading ? "Analisando..." : "✨ Analisar Compatibilidade"}
         </button>
 
-        {/* RESULTADO 54*/}
+        {/* RESULTADO */}
         {result && (
           <div className="mt-16 w-full max-w-3xl animate-fade-in-up">
             <div className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-700">
-              
-              {/* Score Header */}
               <div className={`${result.nota >= 70 ? 'bg-green-50 dark:bg-green-900/20' : result.nota >= 50 ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-red-50 dark:bg-red-900/20'} p-10 text-center border-b border-slate-100 dark:border-slate-700`}>
                 <p className="text-slate-500 dark:text-slate-400 uppercase tracking-widest text-xs font-bold mb-4">Match Score</p>
                 <div className={`text-7xl font-black mb-2 ${result.nota >= 70 ? 'text-green-600 dark:text-green-400' : result.nota >= 50 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
@@ -131,14 +187,11 @@ function App() {
                   {result.nota >= 70 ? "🚀 Excelente Aderência" : result.nota >= 50 ? "⚠️ Aderência Média" : "❌ Baixa Aderência"}
                 </p>
               </div>
-
-              {/* Feedback da IA */}
               <div className="p-10 bg-white dark:bg-slate-800">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg text-indigo-600 dark:text-indigo-400">🤖</div>
                   <h3 className="font-bold text-slate-800 dark:text-white text-lg">Análise da IA</h3>
                 </div>
-                
                 <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 leading-relaxed">
                   <ReactMarkdown 
                     components={{
@@ -150,7 +203,6 @@ function App() {
                   </ReactMarkdown>
                 </div>
               </div>
-
             </div>
           </div>
         )}
