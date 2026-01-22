@@ -46,12 +46,10 @@ async def analisar(
     jobDescription: str = Form(None),
     jobFile: UploadFile = File(None)
 ):
-    # 1. Ler Currículo
     texto_curriculo = await ler_pdf(file)
     if not texto_curriculo:
         return {"nota": 0, "feedback": "Erro: Currículo ilegível."}
 
-    # 2. Ler Vaga
     texto_vaga = ""
     if jobFile:
         texto_vaga = await ler_pdf(jobFile)
@@ -61,12 +59,10 @@ async def analisar(
     if not texto_vaga:
         return {"nota": 0, "feedback": "Erro: Vaga não informada."}
 
-    # 3. Nota Matemática
     doc1 = nlp(texto_curriculo[:100000])
     doc2 = nlp(texto_vaga[:100000])
     nota = round(doc1.similarity(doc2) * 100, 2)
 
-    # 4. Análise IA (Prompt Formatado para Leitura Dinâmica)
     feedback_texto = "Análise indisponível."
     try:
         chat_completion = client.chat.completions.create(
@@ -75,46 +71,30 @@ async def analisar(
                 {
                     "role": "system",
                     "content": """
-                    Você é um Auditor Técnico de Carreira.
-                    Sua missão é gerar um relatório visualmente limpo, usando listas e tópicos para facilitar a leitura rápida.
+                    Você é um Auditor Técnico de Carreira. 
+                    Gere um relatório visualmente limpo, focado em evidências técnicas.
                     
-                    DIRETRIZES DE FORMATAÇÃO (Markdown):
-                    - Use listas (bullet points) sempre que citar mais de 2 itens.
-                    - Use **Negrito** para destacar tecnologias ou palavras-chave.
-                    - Pule linhas entre os tópicos para dar respiro.
+                    DIRETRIZES:
+                    - Use listas (bullet points) e negrito em tecnologias.
+                    - Pule linhas entre os tópicos.
                     
                     TEMPLATE DE RESPOSTA OBRIGATÓRIO:
                     
                     ## 🧭 Resumo da Trajetória
-                    > [Escreva aqui um parágrafo curto e direto, em itálico ou blockquote, resumindo o perfil.]
+                    > [Escreva aqui um parágrafo curto e direto resumindo o perfil técnico.]
                     
                     ## ⚖️ Análise de Gaps
                     ### ✅ O que deu Match:
-                    * [Tech 1]
-                    * [Tech 2]
-                    * [Tech 3]
+                    * [Listar tecnologias e experiências que batem com a vaga]
                     
                     ### ❌ Pontos de Atenção (Gaps):
-                    * **[Requisito Faltante]:** [Breve explicação]
-                    * **[Requisito Faltante]:** [Breve explicação]
+                    * **[Requisito Faltante]:** [Explicação do que falta no currículo]
                     
                     ## 📡 Radar de Senioridade
-                    **Diagnóstico:** [Ex: Perfil Operacional vs Perfil de Resultados]
+                    **Diagnóstico:** [Perfil Operacional vs Perfil de Resultados]
                     
-                    * 📉 **Sinal de Alerta:** [Ex: Descreve muitas tarefas ("Fiz manutenção"), mas poucos números.]
-                    * 📈 **Evidência Positiva:** [Ex: Cita "Redução de 20% no custo AWS".]
-                    
-                    ## 🕵️‍♂️ Mapa de Investigação (Perguntas)
-                    [Liste 3 pontos para o entrevistador aprofundar]
-                    
-                    * 🔍 **Sobre [Tópico]:** [Dúvida gerada] 
-                      👉 *Sugerir:* "[Pergunta direta para a entrevista]"
-                    
-                    * 🔍 **Sobre [Tópico]:** [Dúvida gerada]
-                      👉 *Sugerir:* "[Pergunta direta para a entrevista]"
-                    
-                    * 🔍 **Sobre [Tópico]:** [Dúvida gerada]
-                      👉 *Sugerir:* "[Pergunta direta para a entrevista]"
+                    * 📉 **Sinal de Alerta:** [Ex: Descreve tarefas mas não cita impactos/números.]
+                    * 📈 **Evidência Positiva:** [Ex: Cita conquistas mensuráveis.]
                     """
                 },
                 {
@@ -131,7 +111,4 @@ async def analisar(
         print(f"Erro IA: {e}")
         feedback_texto = "Erro ao gerar análise."
 
-    return {
-        "nota": nota,
-        "feedback": feedback_texto
-    }
+    return {"nota": nota, "feedback": feedback_texto}
