@@ -32,9 +32,11 @@ function App() {
     formData.append('jobDescription', jobDescription);
 
     try {
-      // --- URL ATUALIZADA PARA SEU SERVIDOR ONLINE ---
-      // Tenta pegar do .env, se não, usa o seu Render de produção
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://talent-match-rc43.onrender.com/analisar';
+      // --- CORREÇÃO FINAL: URL FIXA DO RENDER ---
+      // Isso garante que o site SEMPRE vá para a nuvem, nunca para o localhost
+      const apiUrl = 'https://talent-match-rc43.onrender.com/analisar';
+
+      console.log("📡 Conectando em:", apiUrl); // Para ajudar no debug
 
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -44,14 +46,14 @@ function App() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Erro desconhecido");
+        throw new Error(data.error || "Erro desconhecido ao conectar na API");
       }
 
       setResult(data);
 
     } catch (error) {
       console.error(error);
-      alert(`❌ Erro: ${error.message}`);
+      alert(`❌ Erro: ${error.message}. Tente novamente em alguns segundos (o servidor pode estar acordando).`);
     } finally {
       setLoading(false);
     }
