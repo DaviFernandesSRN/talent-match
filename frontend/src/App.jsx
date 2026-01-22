@@ -32,10 +32,10 @@ function App() {
     formData.append('jobDescription', jobDescription);
 
     try {
-      // Tenta pegar do .env, se não, usa o localhost padrão
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/analisar';
+      // --- URL ATUALIZADA PARA SEU SERVIDOR ONLINE ---
+      // Tenta pegar do .env, se não, usa o seu Render de produção
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://talent-match-rc43.onrender.com/analisar';
 
-      // Nota: Ajustei a URL padrão para localhost:8000/analisar que é o padrão do FastAPI
       const response = await fetch(apiUrl, {
         method: 'POST',
         body: formData,
@@ -134,7 +134,6 @@ function App() {
                 <div className="bg-indigo-50 rounded-xl p-6 text-left border border-indigo-100">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-xl">🤖</span>
-                    {/* AQUI ESTÁ A MUDANÇA: */}
                     <p className="text-xs text-indigo-500 font-bold uppercase tracking-wider">
                       Feedback da Inteligência Artificial:
                     </p>
