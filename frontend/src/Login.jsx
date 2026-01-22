@@ -7,14 +7,17 @@ export function Login({ onLogin }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // --- NOVO USUÁRIO DE TESTE DEFINIDO ---
+    // --- TODOS OS USUÁRIOS MANTIDOS NO CÓDIGO ---
     if (email === 'teste@talentmatch.com' && password === 'teste123') {
-      onLogin({
-        name: 'Usuário Teste',
-        role: 'Recrutador Senior',
-        avatar: 'TC'
-      });
-    } else {
+      onLogin({ name: 'Usuário Teste', role: 'Recrutador Senior', avatar: 'UT' });
+    } 
+    else if (email === 'carol@rh.com' && password === '123456') {
+      onLogin({ name: 'Carol Rocha', role: 'Gerente de RH', avatar: 'CR' });
+    } 
+    else if (email === 'davi@tech.com' && password === 'admin123') {
+      onLogin({ name: 'Davi Fernandes', role: 'Tech Lead', avatar: 'DF' });
+    } 
+    else {
       alert('⚠️ Credenciais inválidas. Use os dados da dica abaixo.');
     }
   };
@@ -62,9 +65,9 @@ export function Login({ onLogin }) {
         </form>
 
         <div className="mt-8 pt-8 border-t border-slate-800 text-center">
-          <p className="text-xs text-slate-500 uppercase font-bold tracking-widest mb-4">Dica para Teste:</p>
+          <p className="text-xs text-slate-500 uppercase font-bold tracking-widest mb-4">Acesso para Teste Público:</p>
           <div className="flex flex-col gap-2">
-            {/* ATUALIZAÇÃO DA DICA VISUAL */}
+            {/* APENAS O USUÁRIO NOVO É EXIBIDO NA INTERFACE */}
             <div className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-400">
               <span className="text-indigo-400 font-bold">Usuário:</span> teste@talentmatch.com
             </div>
@@ -72,6 +75,7 @@ export function Login({ onLogin }) {
               <span className="text-indigo-400 font-bold">Senha:</span> teste123
             </div>
           </div>
+          <p className="text-[10px] text-slate-600 mt-4 italic">Acessos administrativos permanecem ativos para usuários autorizados.</p>
         </div>
       </div>
     </div>
