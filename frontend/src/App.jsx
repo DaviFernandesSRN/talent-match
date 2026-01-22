@@ -7,8 +7,8 @@ import { Login } from './Login';
 function App() {
   // --- ESTADOS GERAIS ---
   const [user, setUser] = useState(null); 
-  const [view, setView] = useState('new'); // 'new' (Nova Análise) ou 'history' (Histórico)
-  const [history, setHistory] = useState([]); // Nossa lista de histórico
+  const [view, setView] = useState('new'); // 'new' ou 'history'
+  const [history, setHistory] = useState([]); 
 
   // --- ESTADOS DO FORMULÁRIO ---
   const [file, setFile] = useState(null);
@@ -21,15 +21,13 @@ function App() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // 1. CARREGAR HISTÓRICO AO INICIAR
+  // 1. CARREGAR HISTÓRICO + TÍTULO DA ABA
   useEffect(() => {
     const savedHistory = localStorage.getItem('tm_history');
     if (savedHistory) {
       setHistory(JSON.parse(savedHistory));
     }
-    
-    // Título da página no navegador
-    document.title = user ? "Dashboard | TalentMatch" : "Login | TalentMatch";
+    document.title = user ? "TalentMatch | Enterprise" : "Login | TalentMatch";
   }, [user]);
 
   // 2. EFEITO DARK MODE
@@ -44,22 +42,22 @@ function App() {
   // --- FUNÇÃO PARA SALVAR NO HISTÓRICO ---
   const saveToHistory = (analysisData, fileName, jobName) => {
     const newRecord = {
-      id: Date.now(), // ID único baseado no tempo
+      id: Date.now(),
       date: new Date().toLocaleDateString('pt-BR'),
       time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
       candidateName: fileName,
       jobTitle: jobName,
       score: analysisData.nota,
       feedback: analysisData.feedback,
-      fullResult: analysisData // Guarda tudo
+      fullResult: analysisData
     };
 
-    const updatedHistory = [newRecord, ...history]; // Adiciona no topo
+    const updatedHistory = [newRecord, ...history];
     setHistory(updatedHistory);
-    localStorage.setItem('tm_history', JSON.stringify(updatedHistory)); // Salva no navegador
+    localStorage.setItem('tm_history', JSON.stringify(updatedHistory));
   };
 
-  // --- FUNÇÃO DE ANÁLISE (Backend) ---
+  // --- FUNÇÃO DE ANÁLISE ---
   const handleAnalyze = async () => {
     const hasJob = jobMode === 'text' ? jobDescription : jobFile;
     if (!file || !hasJob) {
@@ -75,17 +73,14 @@ function App() {
     else formData.append('jobFile', jobFile);
 
     try {
-      // URL do Backend (Render)
       const apiUrl = 'https://talent-match-rc43.onrender.com/analisar'; 
       const response = await fetch(apiUrl, { method: 'POST', body: formData });
       const data = await response.json();
 
       if (!response.ok) throw new Error(data.error || "Erro desconhecido");
 
-      // SUCESSO!
       setResult(data);
       
-      // SALVAR NO HISTÓRICO AUTOMATICAMENTE
       const jobName = jobMode === 'text' ? 'Vaga (Texto)' : jobFile.name;
       saveToHistory(data, file.name, jobName);
 
@@ -97,14 +92,13 @@ function App() {
     }
   };
 
-  // --- FUNÇÃO PARA CARREGAR UM ITEM DO HISTÓRICO ---
+  // --- FUNÇÃO PARA CARREGAR HISTÓRICO ---
   const loadHistoryItem = (item) => {
-    setResult(item.fullResult); // Restaura o resultado
-    setFile({ name: item.candidateName }); // Restaura nome do arquivo (visual)
-    setView('new'); // Volta para a tela principal
+    setResult(item.fullResult);
+    setFile({ name: item.candidateName }); // Restaura o nome para o PDF funcionar
+    setView('new');
   };
 
-  // SE NÃO TIVER USUÁRIO, MOSTRA LOGIN
   if (!user) {
     return <Login onLogin={(userData) => setUser(userData)} />;
   }
@@ -124,27 +118,21 @@ function App() {
         
         <nav className="flex-1 p-4 space-y-2">
           <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4 px-2 mt-4">Navegação</div>
-          
-          {/* BOTÃO NOVA ANÁLISE */}
           <button 
             onClick={() => { setView('new'); setResult(null); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${view === 'new' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}
           >
             <span>🚀</span> Nova Análise
           </button>
-          
-          {/* BOTÃO HISTÓRICO */}
           <button 
             onClick={() => setView('history')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${view === 'history' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}
           >
             <span>📂</span> Histórico <span className="ml-auto text-xs bg-slate-800 px-2 py-0.5 rounded-full">{history.length}</span>
           </button>
-          
           <button onClick={() => setDarkMode(!darkMode)} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-white transition-colors mt-4">
             <span>{darkMode ? '☀️' : '🌙'}</span> {darkMode ? 'Modo Claro' : 'Modo Escuro'}
           </button>
-
           <button onClick={() => setUser(null)} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-900/20 rounded-xl text-red-400 hover:text-red-300 transition-colors mt-auto">
             <span>🚪</span> Sair
           </button>
@@ -172,7 +160,6 @@ function App() {
 
         <div className="max-w-5xl mx-auto p-6 lg:p-12">
           
-          {/* TÍTULO DA PÁGINA (ATUALIZADO!) */}
           <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-2 tracking-tight">
@@ -189,11 +176,9 @@ function App() {
           {/* === VISÃO 1: NOVA ANÁLISE === */}
           {view === 'new' && (
             <>
-              {/* INPUTS DE ARQUIVO (SÓ APARECEM SE NÃO TIVER RESULTADO) */}
               {!result && (
                 <>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8 animate-fade-in-up">
-                    {/* CARD 1: CURRÍCULO */}
                     <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 hover:border-indigo-400 transition-colors">
                       <label className="font-bold text-slate-700 dark:text-slate-200 mb-4 block">1. Currículo (Candidato)</label>
                       <div className="relative h-48 group">
@@ -205,7 +190,6 @@ function App() {
                       </div>
                     </div>
 
-                    {/* CARD 2: VAGA */}
                     <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 hover:border-purple-400 transition-colors">
                       <div className="flex justify-between mb-4">
                         <label className="font-bold text-slate-700 dark:text-slate-200">2. Descrição da Vaga</label>
@@ -214,7 +198,6 @@ function App() {
                           <button onClick={() => setJobMode('pdf')} className={`px-2 py-0.5 text-xs rounded ${jobMode === 'pdf' ? 'bg-white shadow text-purple-600' : 'text-slate-400'}`}>PDF</button>
                         </div>
                       </div>
-                      
                       {jobMode === 'text' ? (
                         <textarea className="w-full h-48 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm dark:text-white resize-none outline-none focus:ring-2 focus:ring-purple-500" placeholder="Cole a vaga aqui..." value={jobDescription} onChange={(e) => setJobDescription(e.target.value)}></textarea>
                       ) : (
@@ -264,13 +247,26 @@ function App() {
                   <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
                     <div className="bg-slate-50 dark:bg-slate-950/50 p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
                       <h3 className="font-bold text-slate-700 dark:text-slate-200">🤖 Mapa de Investigação</h3>
-                      <PDFDownloadLink document={<ReportPDF fileName={file?.name || result.candidateName} jobMode={jobMode} score={result.nota} feedback={result.feedback} />} fileName={`Auditoria_${result.nota}.pdf`}>
+                      
+                      {/* --- AQUI ESTÁ A ALTERAÇÃO DO NOME DO ARQUIVO --- */}
+                      <PDFDownloadLink 
+                        document={
+                            <ReportPDF 
+                                fileName={file?.name || result.candidateName} 
+                                jobMode={jobMode} 
+                                score={result.nota} 
+                                feedback={result.feedback} 
+                            />
+                        } 
+                        fileName={`TalentMatch_${file?.name || result.candidateName}`} 
+                      >
                         {({ loading }) => (
                           <button disabled={loading} className="text-xs bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-lg font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">
                             {loading ? '⏳...' : '📄 Baixar PDF'}
                           </button>
                         )}
                       </PDFDownloadLink>
+
                     </div>
                     <div className="p-8 prose prose-slate dark:prose-invert max-w-none">
                       <ReactMarkdown>{result.feedback}</ReactMarkdown>
@@ -307,11 +303,7 @@ function App() {
                         </div>
                       </div>
                     </div>
-                    
-                    <button 
-                      onClick={() => loadHistoryItem(item)}
-                      className="px-6 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors w-full md:w-auto"
-                    >
+                    <button onClick={() => loadHistoryItem(item)} className="px-6 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold text-sm hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors w-full md:w-auto">
                       Ver Relatório
                     </button>
                   </div>
@@ -319,7 +311,6 @@ function App() {
               )}
             </div>
           )}
-
         </div>
       </main>
     </div>
