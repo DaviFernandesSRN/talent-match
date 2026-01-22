@@ -14,7 +14,7 @@ client = Groq(api_key=MINHA_CHAVE)
 app = FastAPI()
 
 # --- LIBERAR O ACESSO (CORS) ---
-# Isso permite que a Vercel converse com o Render
+# Isso permite que a Vercel converse com oOO Render
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Libera geral (para facilitar). Em produção real, você colocaria só a URL da Vercel.
