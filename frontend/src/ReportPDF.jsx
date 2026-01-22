@@ -25,13 +25,9 @@ export const ReportPDF = ({ fileName, score, feedback }) => {
     if (!rawText) return null;
     return rawText.split('\n').map((line, index) => {
       const cleanLine = line.trim();
-      
-      // Títulos (Ex: ## Título)
       if (cleanLine.startsWith('##')) {
         return <Text key={index} style={styles.sectionTitle}>{cleanLine.replace(/#/g, '').trim().toUpperCase()}</Text>;
       }
-      
-      // Listas (Ex: * Item ou - Item)
       if (cleanLine.startsWith('* ') || cleanLine.startsWith('- ')) {
         const content = cleanLine.replace(/[*|-]/g, '').replace(/\*\*/g, '').trim();
         return (
@@ -41,12 +37,9 @@ export const ReportPDF = ({ fileName, score, feedback }) => {
           </View>
         );
       }
-      
-      // Parágrafos comuns (remove marcação de negrito visual do Markdown)
       if (cleanLine.length > 0) {
         return <Text key={index} style={styles.text}>{cleanLine.replace(/\*\*/g, '').replace(/>/g, '')}</Text>;
       }
-      
       return null;
     });
   };
@@ -64,17 +57,14 @@ export const ReportPDF = ({ fileName, score, feedback }) => {
             <Text style={styles.meta}>Candidato: {fileName || "Desconhecido"}</Text>
           </View>
         </View>
-
         <View style={[styles.scoreCard, { borderLeftColor: scoreColor }]}>
           <Text style={styles.scoreTitle}>Índice de Aderência (Match Score)</Text>
           <Text style={[styles.scoreValue, { color: scoreColor }]}>{score}%</Text>
         </View>
-
         <View>{formatText(feedback)}</View>
-
         <View style={styles.footer}>
           <Text style={styles.footerText}>Relatório gerado por TalentMatch AI.</Text>
-          <Text style={styles.footerText}>Confidencial - Uso Interno</Text>
+          <Text style={styles.footerText}>Confidencial</Text>
         </View>
       </Page>
     </Document>
