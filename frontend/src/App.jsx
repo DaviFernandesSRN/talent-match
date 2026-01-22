@@ -57,6 +57,7 @@ function App() {
       const response = await fetch('https://talent-match-rc43.onrender.com/analisar', { method: 'POST', body: formData });
       const data = await response.json();
       setResult(data);
+      // Preserva a formatação Markdown original para edição
       setEditableFeedback(data.feedback);
       saveToHistory(data, file.name, jobMode === 'text' ? 'Vaga (Texto)' : jobFile.name);
     } catch (e) { alert("❌ Erro na comunicação com o servidor."); }
@@ -67,7 +68,7 @@ function App() {
 
   return (
     <div className={`flex h-screen overflow-hidden ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
-      <aside className="w-64 bg-slate-900 text-white flex flex-col hidden md:flex">
+      <aside className="w-64 bg-slate-900 text-white flex flex-col hidden md:flex border-r border-slate-800">
         <div className="p-6 border-b border-slate-800 flex items-center gap-3">
           <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center font-bold">🎯</div>
           <h1 className="text-lg font-bold">TalentMatch</h1>
@@ -88,7 +89,7 @@ function App() {
 
       <main className="flex-1 overflow-y-auto p-6 lg:p-12">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold mb-10 dark:text-white">{view === 'new' ? 'TalentMatch' : 'Histórico'}</h2>
+          <h2 className="text-3xl font-bold mb-10 dark:text-white">TalentMatch</h2>
 
           {view === 'new' && (
             <>
@@ -121,10 +122,15 @@ function App() {
                       <button className="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold">📄 Baixar Relatório PDF</button>
                     </PDFDownloadLink>
                   </div>
+                  
+                  {/* ÁREA DE EDIÇÃO DO CONTEÚDO MARCADOR */}
                   <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border">
-                    <h3 className="font-bold dark:text-white mb-4">✍️ Editar Conteúdo do Relatório</h3>
+                    <div className="flex justify-between items-center mb-4">
+                       <h3 className="font-bold dark:text-white">✍️ Editar Conteúdo do Relatório</h3>
+                       <span className="text-xs text-slate-400 italic">Formato Markdown Ativo</span>
+                    </div>
                     <textarea 
-                      className="w-full h-[500px] p-4 rounded-xl bg-slate-50 dark:bg-slate-950 dark:text-white font-mono text-sm border focus:ring-2 focus:ring-indigo-500"
+                      className="w-full h-[600px] p-4 rounded-xl bg-slate-50 dark:bg-slate-950 dark:text-white font-mono text-sm border focus:ring-2 focus:ring-indigo-500 leading-relaxed"
                       value={editableFeedback}
                       onChange={(e) => setEditableFeedback(e.target.value)}
                     />

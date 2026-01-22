@@ -11,7 +11,9 @@ const styles = StyleSheet.create({
   scoreTitle: { fontSize: 10, textTransform: 'uppercase', color: '#64748b', marginBottom: 4, fontWeight: 'bold' },
   scoreValue: { fontSize: 32, fontWeight: 'bold', color: '#0f172a' },
   sectionTitle: { fontSize: 14, fontWeight: 'bold', color: '#4f46e5', marginTop: 15, marginBottom: 6, borderBottomWidth: 1, borderBottomColor: '#e2e8f0', paddingBottom: 2 },
-  text: { fontSize: 11, lineHeight: 1.5, marginBottom: 4, textAlign: 'justify' },
+  text: { fontSize: 11, lineHeight: 1.6, marginBottom: 6, textAlign: 'justify' },
+  bulletContainer: { flexDirection: 'row', marginBottom: 4, paddingLeft: 10 },
+  bulletPoint: { fontSize: 12, color: '#4f46e5', marginRight: 6 },
   footer: { position: 'absolute', bottom: 30, left: 40, right: 40, borderTopWidth: 1, borderTopColor: '#cbd5e1', paddingTop: 10, flexDirection: 'row', justifyContent: 'space-between' },
   footerText: { fontSize: 8, color: '#94a3b8' }
 });
@@ -23,17 +25,28 @@ export const ReportPDF = ({ fileName, score, feedback }) => {
     if (!rawText) return null;
     return rawText.split('\n').map((line, index) => {
       const cleanLine = line.trim();
-      if (cleanLine.startsWith('##')) return <Text key={index} style={styles.sectionTitle}>{cleanLine.replace(/##/g, '').trim().toUpperCase()}</Text>;
+      
+      // Títulos (Ex: ## Título)
+      if (cleanLine.startsWith('##')) {
+        return <Text key={index} style={styles.sectionTitle}>{cleanLine.replace(/#/g, '').trim().toUpperCase()}</Text>;
+      }
+      
+      // Listas (Ex: * Item ou - Item)
       if (cleanLine.startsWith('* ') || cleanLine.startsWith('- ')) {
         const content = cleanLine.replace(/[*|-]/g, '').replace(/\*\*/g, '').trim();
         return (
-          <View key={index} style={{ flexDirection: 'row', marginBottom: 2 }}>
-            <Text style={{ fontSize: 10, color: '#4f46e5', marginRight: 5 }}>•</Text>
+          <View key={index} style={styles.bulletContainer}>
+            <Text style={styles.bulletPoint}>•</Text>
             <Text style={styles.text}>{content}</Text>
           </View>
         );
       }
-      if (cleanLine.length > 0) return <Text key={index} style={styles.text}>{cleanLine.replace(/\*\*/g, '')}</Text>;
+      
+      // Parágrafos comuns (remove marcação de negrito visual do Markdown)
+      if (cleanLine.length > 0) {
+        return <Text key={index} style={styles.text}>{cleanLine.replace(/\*\*/g, '').replace(/>/g, '')}</Text>;
+      }
+      
       return null;
     });
   };
@@ -47,7 +60,7 @@ export const ReportPDF = ({ fileName, score, feedback }) => {
             <Text style={styles.subBrand}>Relatório Técnico</Text>
           </View>
           <View>
-            <Text style={styles.meta}>Data: {new Date().toLocaleDateString()}</Text>
+            <Text style={styles.meta}>Gerado em: {new Date().toLocaleDateString()}</Text>
             <Text style={styles.meta}>Candidato: {fileName || "Desconhecido"}</Text>
           </View>
         </View>
@@ -61,7 +74,7 @@ export const ReportPDF = ({ fileName, score, feedback }) => {
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>Relatório gerado por TalentMatch AI.</Text>
-          <Text style={styles.footerText}>Confidencial</Text>
+          <Text style={styles.footerText}>Confidencial - Uso Interno</Text>
         </View>
       </Page>
     </Document>
