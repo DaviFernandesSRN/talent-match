@@ -63,7 +63,6 @@ async def analisar(
     doc2 = nlp(texto_vaga[:100000])
     nota = round(doc1.similarity(doc2) * 100, 2)
 
-    feedback_texto = "Análise indisponível."
     try:
         chat_completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile", 
@@ -72,29 +71,25 @@ async def analisar(
                     "role": "system",
                     "content": """
                     Você é um Auditor Técnico de Carreira. 
-                    Gere um relatório visualmente limpo, focado em evidências técnicas.
-                    
-                    DIRETRIZES:
-                    - Use listas (bullet points) e negrito em tecnologias.
-                    - Pule linhas entre os tópicos.
+                    Gere um relatório visualmente limpo, usando tópicos e negrito para tecnologias.
                     
                     TEMPLATE DE RESPOSTA OBRIGATÓRIO:
                     
                     ## 🧭 Resumo da Trajetória
-                    > [Escreva aqui um parágrafo curto e direto resumindo o perfil técnico.]
+                    > [Resumo curto e direto do perfil técnico do candidato.]
                     
                     ## ⚖️ Análise de Gaps
                     ### ✅ O que deu Match:
-                    * [Listar tecnologias e experiências que batem com a vaga]
+                    * [Listar competências que batem com a vaga]
                     
                     ### ❌ Pontos de Atenção (Gaps):
-                    * **[Requisito Faltante]:** [Explicação do que falta no currículo]
+                    * **[Gap]:** [Breve explicação técnica]
                     
                     ## 📡 Radar de Senioridade
                     **Diagnóstico:** [Perfil Operacional vs Perfil de Resultados]
                     
-                    * 📉 **Sinal de Alerta:** [Ex: Descreve tarefas mas não cita impactos/números.]
-                    * 📈 **Evidência Positiva:** [Ex: Cita conquistas mensuráveis.]
+                    * 📉 **Sinal de Alerta:** [Ex: Foco apenas em ferramentas, sem citar impactos.]
+                    * 📈 **Evidência Positiva:** [Ex: Menção a métricas ou liderança técnica.]
                     """
                 },
                 {
@@ -103,12 +98,10 @@ async def analisar(
                 }
             ],
             temperature=0.1, 
-            max_tokens=800
+            max_tokens=700
         )
         feedback_texto = chat_completion.choices[0].message.content
-
     except Exception as e:
-        print(f"Erro IA: {e}")
-        feedback_texto = "Erro ao gerar análise."
+        feedback_texto = "Erro ao processar análise técnica."
 
     return {"nota": nota, "feedback": feedback_texto}
