@@ -9,16 +9,16 @@ export function Login({ onLogin }) {
 
     // --- CREDENCIAIS PADRONIZADAS ---
     if (email === 'teste@talentmatch.com' && password === 'teste123') {
-      onLogin({ name: 'Usuário Teste', role: 'Recrutador Senior', avatar: 'UT' });
+      onLogin({ name: 'Usuário Teste', role: 'teste', avatar: 'UT' });
     } 
     else if (email === 'techrecruiter@talentmatch.com' && password === 'recruiter123') {
-      onLogin({ name: 'Tech Recruiter', role: 'Especialista em Atração', avatar: 'TR' });
+      onLogin({ name: 'Tech Recruiter', role: 'Recruiter', avatar: 'TR' });
     }
     else if (email === 'carol@talentmatch.com' && password === '123456') {
       onLogin({ name: 'Carol Rocha', role: 'Product Manager', avatar: 'CR' });
     } 
     else if (email === 'davifernandes@talentmatch.com' && password === 'admin123') {
-      onLogin({ name: 'Davi Fernandes', role: 'Tech Lead', avatar: 'DF' });
+      onLogin({ name: 'Davi Fernandes', role: 'CEO-ADM', avatar: 'DF' });
     } 
     else {
       alert('⚠️ Credenciais inválidas. Use os dados da dica abaixo.');
