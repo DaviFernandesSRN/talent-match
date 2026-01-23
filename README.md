@@ -8,9 +8,10 @@
 
 O **TalentMatch** é uma aplicação Fullstack que revoluciona o processo de triagem de candidatos. O sistema utiliza Processamento de Linguagem Natural (NLP) para calcular a compatibilidade semântica entre um currículo (PDF) e uma descrição de vaga, além de usar **Inteligência Artificial Generativa** para fornecer um feedback detalhado sobre pontos fortes e gaps do candidato.
 
-🔗 **Live Demo:** [Acesse o Projeto Online Aqui](https://talent-match-c3nh.vercel.app/)
-<img width="1902" height="858" alt="image" src="https://github.com/user-attachments/assets/8b06fa24-3708-41b2-8a14-5b7d79698434" />
-<img width="1913" height="857" alt="image" src="https://github.com/user-attachments/assets/d68114c2-47d8-4074-ac71-e4feca837a68" />
+🔗 **Link para o Site:** [Acesse o Projeto Online Aqui](https://talent-match-c3nh.vercel.app/)
+<img width="1916" height="869" alt="image" src="https://github.com/user-attachments/assets/e165b281-0020-4f8b-8974-c7c5f98b6516" />
+<img width="1910" height="862" alt="image" src="https://github.com/user-attachments/assets/25ffcaaa-9174-4c7b-9226-b72d304b9280" />
+
 
 
 ---
