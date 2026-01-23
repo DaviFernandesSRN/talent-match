@@ -6,10 +6,10 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from groq import Groq
 
-# 1. INSTANCIAR O APP PRIMEIRO (CORREÇÃO DO ERRO NO RENDER)
+# --- 1. INSTANCIAR O APP (OBRIGATÓRIO SER PRIMEIRO) ---
 app = FastAPI()
 
-# 2. CONFIGURAR MIDDLEWARES
+# --- 2. MIDDLEWARE CORS ---
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,7 +18,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 3. DEMAIS CONFIGURAÇÕES
+# --- 3. CONFIGURAÇÕES E IA ---
 MINHA_CHAVE = os.getenv("GROQ_API_KEY", "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")
 client = Groq(api_key=MINHA_CHAVE)
 
@@ -39,7 +39,7 @@ async def ler_pdf(arquivo: UploadFile):
     except:
         return ""
 
-# 4. AGORA DECLARAR AS ROTAS
+# --- 4. ROTAS ---
 @app.post("/analisar")
 async def analisar(
     file: UploadFile = File(...),
@@ -50,7 +50,7 @@ async def analisar(
     texto_vaga = await ler_pdf(jobFile) if jobFile else jobDescription
     
     if not texto_curriculo or not texto_vaga:
-        return {"nota": 0, "feedback": "Erro nos dados enviados."}
+        return {"nota": 0, "feedback": "Erro nos dados."}
 
     doc1 = nlp(texto_curriculo[:50000])
     doc2 = nlp(texto_vaga[:50000])
@@ -59,7 +59,11 @@ async def analisar(
     chat_completion = client.chat.completions.create(
         model="llama-3.3-70b-versatile", 
         messages=[
-            {"role": "system", "content": "Você é um Auditor Técnico. Gere o relatório com a seção 'PONTOS DE INVESTIGAÇÃO (O PULO DO GATO)' conforme o padrão solicitado."},
+            {"role": "system", "content": """Você é um Auditor Técnico. Gere o relatório com: 
+            ## 🧭 Resumo da Trajetória
+            ## ⚖️ Análise de Gaps
+            ## 🎯 PONTOS DE INVESTIGAÇÃO (O PULO DO GATO)
+            (Sempre use este padrão exatamente como no PDF de exemplo)"""},
             {"role": "user", "content": f"CV: {texto_curriculo[:6000]} \nVAGA: {texto_vaga[:3000]}"}
         ],
         temperature=0.1

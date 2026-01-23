@@ -16,7 +16,7 @@ function App() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [editableFeedback, setEditableFeedback] = useState('');
-  const [editTab, setEditTab] = useState('preview'); 
+  const [editTab, setEditTab] = useState('preview');
 
   useEffect(() => {
     const savedHistory = localStorage.getItem('tm_history');
@@ -45,26 +45,18 @@ function App() {
     localStorage.setItem('tm_history', JSON.stringify(updated));
   };
 
-  // --- NOVA FUNÇÃO: EXCLUIR APENAS UM PERFIL ---
   const deleteHistoryItem = (id, e) => {
-    e.stopPropagation(); // Impede que abra a análise ao clicar na lixeira
-    if (window.confirm("🗑️ Deseja remover apenas esta análise do histórico?")) {
-      const updatedHistory = history.filter(item => item.id !== id);
-      setHistory(updatedHistory);
-      localStorage.setItem('tm_history', JSON.stringify(updatedHistory));
-    }
-  };
-
-  const clearHistory = () => {
-    if (window.confirm("⚠️ Tem certeza que deseja apagar TODO o histórico?")) {
-      setHistory([]);
-      localStorage.removeItem('tm_history');
+    e.stopPropagation();
+    if (window.confirm("🗑️ Excluir apenas esta análise?")) {
+      const updated = history.filter(item => item.id !== id);
+      setHistory(updated);
+      localStorage.setItem('tm_history', JSON.stringify(updated));
     }
   };
 
   const handleAnalyze = async () => {
     const hasJob = jobMode === 'text' ? jobDescription : jobFile;
-    if (!file || !hasJob) { alert("⚠️ Anexe os arquivos necessários."); return; }
+    if (!file || !hasJob) { alert("⚠️ Anexe os arquivos."); return; }
     setLoading(true);
     setResult(null);
     const formData = new FormData();
@@ -76,114 +68,72 @@ function App() {
       const data = await response.json();
       setResult(data);
       setEditableFeedback(data.feedback);
-      saveToHistory(data, file.name, jobMode === 'text' ? 'Vaga (Texto)' : (jobFile ? jobFile.name : 'Vaga PDF'));
-    } catch (e) { alert("❌ Erro na comunicação com o servidor."); }
+      saveToHistory(data, file.name, jobMode === 'text' ? 'Vaga (Texto)' : 'Vaga (PDF)');
+    } catch (e) { alert("❌ Erro no servidor."); }
     finally { setLoading(false); }
-  };
-
-  const loadHistoryItem = (item) => {
-    setResult(item.fullResult);
-    setEditableFeedback(item.feedback);
-    setFile({ name: item.candidateName });
-    setView('new');
   };
 
   if (!user) return <Login onLogin={setUser} />;
 
   return (
-    <div className={`flex h-screen overflow-hidden ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
-      <aside className="w-64 bg-slate-900 text-white flex flex-col hidden md:flex border-r border-slate-800">
+    <div className={`flex h-screen ${darkMode ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
+      <aside className="w-64 bg-slate-900 text-white flex flex-col hidden md:flex">
         <div className="p-6 border-b border-slate-800 flex items-center gap-3">
           <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center font-bold">🎯</div>
+          {/* TÍTULO SEMPRE BRANCO NA SIDEBAR */}
           <h1 className="text-lg font-bold text-white">TalentMatch</h1>
         </div>
         <nav className="flex-1 p-4 space-y-2">
-          <button onClick={() => { setView('new'); setResult(null); }} className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${view === 'new' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-400'}`}>🚀 Nova Análise</button>
-          <button onClick={() => setView('history')} className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${view === 'history' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-400'}`}>📂 Histórico</button>
-          <button onClick={() => setDarkMode(!darkMode)} className="w-full text-left px-4 py-3 text-slate-400 hover:bg-slate-800 rounded-xl mt-4"><span>{darkMode ? '☀️' : '🌙'}</span> {darkMode ? 'Claro' : 'Escuro'}</button>
-          <div className="mt-auto pt-4 border-t border-slate-800">
-            <div className="px-4 py-2 bg-slate-800/50 rounded-lg mb-2 text-xs">
-              <p className="text-indigo-400 font-bold">{user.name}</p>
-              <p className="text-slate-400">{user.role}</p>
-            </div>
-            <button onClick={() => setUser(null)} className="w-full text-left px-4 py-3 text-red-400 hover:bg-red-900/20 rounded-xl transition-colors">🚪 Sair</button>
-          </div>
+          <button onClick={() => { setView('new'); setResult(null); }} className={`w-full text-left px-4 py-3 rounded-xl ${view === 'new' ? 'bg-indigo-600' : 'hover:bg-slate-800'}`}>🚀 Nova Análise</button>
+          <button onClick={() => setView('history')} className={`w-full text-left px-4 py-3 rounded-xl ${view === 'history' ? 'bg-indigo-600' : 'hover:bg-slate-800'}`}>📂 Histórico</button>
+          <button onClick={() => setDarkMode(!darkMode)} className="w-full text-left px-4 py-3 mt-4"><span>{darkMode ? '☀️' : '🌙'}</span> {darkMode ? 'Claro' : 'Escuro'}</button>
+          <button onClick={() => setUser(null)} className="w-full text-left px-4 py-3 text-red-400 mt-auto">🚪 Sair</button>
         </nav>
       </aside>
 
-      <main className="flex-1 overflow-y-auto p-6 lg:p-12 transition-colors duration-300">
+      <main className="flex-1 overflow-y-auto p-6 lg:p-12">
         <div className="max-w-5xl mx-auto">
           <div className="mb-10 flex justify-between items-end">
-            {/* Títulos brancos no Dark Mode */}
-            <h2 className="text-3xl font-bold text-slate-800 dark:text-white transition-colors">
+            {/* TÍTULO BRANCO NO MODO ESCURO */}
+            <h2 className="text-3xl font-bold dark:text-white text-slate-800">
               {view === 'new' ? 'TalentMatch' : 'Histórico de Análises'}
             </h2>
             {view === 'history' && history.length > 0 && (
-              <button onClick={clearHistory} className="text-red-500 font-bold border border-red-200 dark:border-red-900/50 px-4 py-2 rounded-lg text-sm hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">🗑️ Limpar Tudo</button>
+              <button onClick={() => {setHistory([]); localStorage.removeItem('tm_history');}} className="text-red-500 text-sm font-bold">🗑️ Limpar Tudo</button>
             )}
           </div>
 
           {view === 'new' && (
             <>
               {!result && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
-                    <label className="font-bold text-slate-700 dark:text-slate-200 mb-4 block">1. Currículo (PDF)</label>
-                    <input type="file" accept=".pdf" onChange={(e) => setFile(e.target.files[0])} className="w-full p-4 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl text-slate-500 dark:text-slate-400" />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border dark:border-slate-800 shadow-sm">
+                    <label className="font-bold mb-4 block dark:text-white">1. Currículo (PDF)</label>
+                    <input type="file" accept=".pdf" onChange={(e) => setFile(e.target.files[0])} className="w-full p-4 border-2 border-dashed rounded-xl dark:bg-slate-800 dark:border-slate-700" />
                   </div>
-                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
-                    <div className="flex justify-between mb-4">
-                      <label className="font-bold text-slate-700 dark:text-slate-200">2. Vaga</label>
-                      <div className="flex bg-slate-100 dark:bg-slate-800 rounded p-1">
-                        <button onClick={() => setJobMode('text')} className={`px-2 py-0.5 text-xs rounded transition-all ${jobMode === 'text' ? 'bg-white dark:bg-slate-700 shadow text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>Texto</button>
-                        <button onClick={() => setJobMode('pdf')} className={`px-2 py-0.5 text-xs rounded transition-all ${jobMode === 'pdf' ? 'bg-white dark:bg-slate-700 shadow text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`}>PDF</button>
-                      </div>
-                    </div>
-                    {jobMode === 'text' ? (
-                      <textarea className="w-full h-32 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 transition-colors" value={jobDescription} onChange={e => setJobDescription(e.target.value)} placeholder="Cole aqui..." />
-                    ) : (
-                      <input type="file" accept=".pdf" onChange={e => setJobFile(e.target.files[0])} className="w-full p-4 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl text-slate-500 dark:text-slate-400" />
-                    )}
+                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border dark:border-slate-800 shadow-sm">
+                    <label className="font-bold mb-4 block dark:text-white">2. Vaga</label>
+                    <textarea className="w-full h-32 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 dark:text-white border-none" onChange={e => setJobDescription(e.target.value)} placeholder="Cole o texto aqui..." />
                   </div>
-                  <div className="lg:col-span-2 flex justify-end">
-                    <button onClick={handleAnalyze} disabled={loading} className="px-8 py-4 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 shadow-xl transition-transform hover:-translate-y-1">{loading ? '⏳ Processando...' : '✨ Executar Análise'}</button>
-                  </div>
+                  <button onClick={handleAnalyze} disabled={loading} className="lg:col-span-2 bg-indigo-600 text-white py-4 rounded-xl font-bold">{loading ? '⏳ Processando...' : '✨ Executar Análise'}</button>
                 </div>
               )}
 
               {result && (
-                <div className="space-y-6 pb-10">
-                  <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-lg transition-colors">
-                    <div className="flex items-center gap-6">
-                      <div className={`text-6xl font-black ${result.nota >= 70 ? 'text-emerald-500' : 'text-rose-500'}`}>{result.nota}%</div>
-                      <div className="text-slate-400 uppercase text-xs font-bold tracking-widest">Match<br/>Index</div>
-                    </div>
+                <div className="space-y-6">
+                  <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border dark:border-slate-800 flex justify-between items-center">
+                    <div className={`text-6xl font-black ${result.nota >= 70 ? 'text-emerald-500' : 'text-rose-500'}`}>{result.nota}%</div>
                     <PDFDownloadLink document={<ReportPDF fileName={file?.name} score={result.nota} feedback={editableFeedback} />} fileName={`TalentMatch_${file?.name}`}>
-                      <button className="bg-slate-800 dark:bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:opacity-90">📄 Baixar PDF</button>
+                      <button className="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold">📄 Baixar PDF</button>
                     </PDFDownloadLink>
                   </div>
-
-                  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
-                    <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50">
-                      <button onClick={() => setEditTab('preview')} className={`px-6 py-3 font-bold text-sm transition-all ${editTab === 'preview' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-400'}`}>👁️ Visualização</button>
-                      <button onClick={() => setEditTab('edit')} className={`px-6 py-3 font-bold text-sm transition-all ${editTab === 'edit' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-400'}`}>✍️ Editar</button>
+                  <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border dark:border-slate-800">
+                    <div className="flex gap-4 mb-4">
+                       <button onClick={() => setEditTab('preview')} className={`font-bold ${editTab === 'preview' ? 'text-indigo-600 border-b-2' : 'text-slate-400'}`}>Visualização</button>
+                       <button onClick={() => setEditTab('edit')} className={`font-bold ${editTab === 'edit' ? 'text-indigo-600 border-b-2' : 'text-slate-400'}`}>Editar</button>
                     </div>
-                    
-                    <div className="p-8">
-                      {editTab === 'preview' ? (
-                        <div className="prose prose-slate dark:prose-invert max-w-none transition-colors">
-                          <ReactMarkdown>{editableFeedback}</ReactMarkdown>
-                        </div>
-                      ) : (
-                        <textarea 
-                          className="w-full h-[500px] p-4 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white font-mono text-sm border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 leading-relaxed transition-colors"
-                          value={editableFeedback}
-                          onChange={(e) => setEditableFeedback(e.target.value)}
-                        />
-                      )}
-                    </div>
+                    {editTab === 'preview' ? <div className="prose dark:prose-invert max-w-none"><ReactMarkdown>{editableFeedback}</ReactMarkdown></div> : <textarea className="w-full h-[500px] p-4 bg-slate-50 dark:bg-slate-800 rounded-xl dark:text-white" value={editableFeedback} onChange={e => setEditableFeedback(e.target.value)} />}
                   </div>
-                  <button onClick={() => setResult(null)} className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">⬅ Nova Análise</button>
                 </div>
               )}
             </>
@@ -191,34 +141,15 @@ function App() {
 
           {view === 'history' && (
             <div className="space-y-4">
-              {history.length === 0 ? (
-                <div className="text-center py-20 text-slate-500 italic">Nenhuma análise no histórico.</div>
-              ) : (
-                history.map(item => (
-                  <div 
-                    key={item.id} 
-                    onClick={() => loadHistoryItem(item)}
-                    className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center hover:border-indigo-400 transition-all cursor-pointer group shadow-sm"
-                  >
-                    <div>
-                      <h4 className="font-bold text-slate-800 dark:text-white">{item.candidateName}</h4>
-                      <p className="text-xs text-slate-500">{item.date} às {item.time} • {item.jobTitle}</p>
-                    </div>
-                    <div className="flex items-center gap-6">
-                      <span className={`font-bold ${item.score >= 70 ? 'text-emerald-500' : 'text-rose-500'}`}>{item.score}%</span>
-                      {/* Botão de Excluir Individual */}
-                      <button 
-                        onClick={(e) => deleteHistoryItem(item.id, e)}
-                        className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
-                        title="Excluir apenas este perfil"
-                      >
-                        🗑️
-                      </button>
-                      <span className="text-indigo-600 dark:text-indigo-400 font-bold text-sm group-hover:underline">Ver</span>
-                    </div>
+              {history.map(item => (
+                <div key={item.id} className="bg-white dark:bg-slate-900 p-5 rounded-xl border dark:border-slate-800 flex justify-between items-center">
+                  <div onClick={() => {setResult(item.fullResult); setEditableFeedback(item.feedback); setView('new');}} className="cursor-pointer">
+                    <h4 className="font-bold dark:text-white">{item.candidateName}</h4>
+                    <p className="text-xs text-slate-500">{item.date} • {item.score}%</p>
                   </div>
-                ))
-              )}
+                  <button onClick={(e) => deleteHistoryItem(item.id, e)} className="text-slate-400 hover:text-red-500">🗑️</button>
+                </div>
+              ))}
             </div>
           )}
         </div>
