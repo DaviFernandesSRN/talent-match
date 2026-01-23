@@ -75,7 +75,7 @@ function App() {
       const data = await response.json();
       setResult(data);
       setEditableFeedback(data.feedback);
-      saveToHistory(data, file.name, jobMode === 'text' ? 'Vaga (Texto)' : jobFile.name);
+      saveToHistory(data, file.name, jobMode === 'text' ? 'Vaga (Texto)' : (jobFile ? jobFile.name : 'Vaga PDF'));
     } catch (e) { alert("❌ Erro na comunicação com o servidor."); }
     finally { setLoading(false); }
   };
@@ -94,7 +94,6 @@ function App() {
       <aside className="w-64 bg-slate-900 text-white flex flex-col hidden md:flex border-r border-slate-800">
         <div className="p-6 border-b border-slate-800 flex items-center gap-3">
           <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center font-bold">🎯</div>
-          {/* CORREÇÃO: "TalentMatch" na sidebar agora brilha no dark mode */}
           <h1 className="text-lg font-bold text-white">TalentMatch</h1>
         </div>
         <nav className="flex-1 p-4 space-y-2">
@@ -111,10 +110,9 @@ function App() {
         </nav>
       </aside>
 
-      <main className="flex-1 overflow-y-auto p-6 lg:p-12 transition-colors duration-300">
+      <main className="flex-1 overflow-y-auto p-6 lg:p-12 transition-colors">
         <div className="max-w-5xl mx-auto">
           <div className="mb-10 flex justify-between items-end">
-            {/* CORREÇÃO: Título principal agora fica branco no modo escuro */}
             <h2 className="text-3xl font-bold text-slate-800 dark:text-white transition-colors">
               {view === 'new' ? 'TalentMatch' : 'Histórico de Análises'}
             </h2>
@@ -127,11 +125,11 @@ function App() {
             <>
               {!result && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                     <label className="font-bold text-slate-700 dark:text-slate-200 mb-4 block">1. Currículo (PDF)</label>
                     <input type="file" accept=".pdf" onChange={(e) => setFile(e.target.files[0])} className="w-full p-4 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl text-slate-500 dark:text-slate-400" />
                   </div>
-                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                     <div className="flex justify-between mb-4">
                       <label className="font-bold text-slate-700 dark:text-slate-200">2. Vaga</label>
                       <div className="flex bg-slate-100 dark:bg-slate-800 rounded p-1">
@@ -140,7 +138,7 @@ function App() {
                       </div>
                     </div>
                     {jobMode === 'text' ? (
-                      <textarea className="w-full h-32 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 transition-colors" value={jobDescription} onChange={e => setJobDescription(e.target.value)} placeholder="Cole aqui..." />
+                      <textarea className="w-full h-32 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500" value={jobDescription} onChange={e => setJobDescription(e.target.value)} placeholder="Cole aqui..." />
                     ) : (
                       <input type="file" accept=".pdf" onChange={e => setJobFile(e.target.files[0])} className="w-full p-4 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl text-slate-500 dark:text-slate-400" />
                     )}
@@ -153,30 +151,29 @@ function App() {
 
               {result && (
                 <div className="space-y-6 pb-10">
-                  <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-lg transition-colors">
+                  <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-lg">
                     <div className="flex items-center gap-6">
                       <div className={`text-6xl font-black ${result.nota >= 70 ? 'text-emerald-500' : 'text-rose-500'}`}>{result.nota}%</div>
-                      <div className="text-slate-400 uppercase text-xs font-bold tracking-widest">Match<br/>Index</div>
+                      <div className="text-slate-400 uppercase text-xs font-bold tracking-widest">Match Index</div>
                     </div>
                     <PDFDownloadLink document={<ReportPDF fileName={file?.name} score={result.nota} feedback={editableFeedback} />} fileName={`TalentMatch_${file?.name}`}>
-                      <button className="bg-slate-800 dark:bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:opacity-90 transition-all">📄 Baixar PDF</button>
+                      <button className="bg-slate-800 dark:bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:opacity-90">📄 Baixar PDF</button>
                     </PDFDownloadLink>
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
+                  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                     <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50">
                       <button onClick={() => setEditTab('preview')} className={`px-6 py-3 font-bold text-sm transition-all ${editTab === 'preview' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-400'}`}>👁️ Visualização</button>
                       <button onClick={() => setEditTab('edit')} className={`px-6 py-3 font-bold text-sm transition-all ${editTab === 'edit' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-400'}`}>✍️ Editar</button>
                     </div>
-                    
                     <div className="p-8">
                       {editTab === 'preview' ? (
-                        <div className="prose prose-slate dark:prose-invert max-w-none transition-colors">
+                        <div className="prose prose-slate dark:prose-invert max-w-none">
                           <ReactMarkdown>{editableFeedback}</ReactMarkdown>
                         </div>
                       ) : (
                         <textarea 
-                          className="w-full h-[500px] p-4 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white font-mono text-sm border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 leading-relaxed transition-colors"
+                          className="w-full h-[500px] p-4 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white font-mono text-sm border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 leading-relaxed"
                           value={editableFeedback}
                           onChange={(e) => setEditableFeedback(e.target.value)}
                         />
@@ -195,25 +192,14 @@ function App() {
                 <div className="text-center py-20 text-slate-500 italic">Nenhuma análise no histórico.</div>
               ) : (
                 history.map(item => (
-                  <div 
-                    key={item.id} 
-                    onClick={() => loadHistoryItem(item)}
-                    className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center hover:border-indigo-400 transition-all cursor-pointer group shadow-sm"
-                  >
+                  <div key={item.id} onClick={() => loadHistoryItem(item)} className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center hover:border-indigo-400 transition-all cursor-pointer group shadow-sm">
                     <div>
                       <h4 className="font-bold text-slate-800 dark:text-white">{item.candidateName}</h4>
                       <p className="text-xs text-slate-500">{item.date} às {item.time} • {item.jobTitle}</p>
                     </div>
                     <div className="flex items-center gap-6">
                       <span className={`font-bold ${item.score >= 70 ? 'text-emerald-500' : 'text-rose-500'}`}>{item.score}%</span>
-                      {/* LIXEIRA PARA EXCLUSÃO INDIVIDUAL */}
-                      <button 
-                        onClick={(e) => deleteHistoryItem(item.id, e)}
-                        className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
-                        title="Excluir apenas esta análise"
-                      >
-                        🗑️
-                      </button>
+                      <button onClick={(e) => deleteHistoryItem(item.id, e)} className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all" title="Excluir apenas esta análise">🗑️</button>
                       <span className="text-indigo-600 dark:text-indigo-400 font-bold text-sm group-hover:underline">Ver</span>
                     </div>
                   </div>
