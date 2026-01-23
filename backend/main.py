@@ -5,7 +5,7 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from groq import Groq
 
-# 1. INSTANCIAR O APP
+# 1. INSTANCIAR O APP (ORDEM CORRETA)
 app = FastAPI()
 
 # 2. CONFIGURAR MIDDLEWARE
@@ -29,7 +29,7 @@ async def ler_pdf(arquivo: UploadFile):
     except:
         return ""
 
-# 4. ROTA ÚNICA E LEVE
+# 4. ROTA DE ANÁLISE ULTRA-LEVE
 @app.post("/analisar")
 async def analisar(file: UploadFile = File(...), jobDescription: str = Form(None), jobFile: UploadFile = File(None)):
     texto_curriculo = await ler_pdf(file)
@@ -38,17 +38,22 @@ async def analisar(file: UploadFile = File(...), jobDescription: str = Form(None
     if not texto_curriculo or not texto_vaga:
         return {"nota": 0, "feedback": "Erro nos arquivos."}
 
-    # IA assume 100% da análise (Mais preciso que o SpaCy)
+    # IA realiza 100% da auditoria técnica
     completion = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
-            {"role": "system", "content": "Você é um Auditor de RH. Analise o CV e a Vaga. Retorne PRIMEIRO uma nota de 0 a 100 baseada na aderência e DEPOIS o feedback com seções: Resumo, Gaps e Pulo do Gato."},
+            {"role": "system", "content": "Você é o Auditor TalentMatch. Analise o CV e a Vaga. Retorne no formato: NOTA: [valor de 0 a 100] seguida do relatório com Resumo, Gaps e Pulo do Gato."},
             {"role": "user", "content": f"CV: {texto_curriculo[:8000]}\nVAGA: {texto_vaga[:4000]}"}
         ]
     )
     
-    res = completion.choices[0].message.content
-    # Tenta extrair a nota do texto se a IA mandou, senão gera uma baseada no tamanho
-    nota = 85 if "8" in res[:50] else 70 
+    resposta = completion.choices[0].message.content
+    
+    # Extrai a nota do texto (ex: "NOTA: 85") ou define padrão 70 se não encontrar
+    try:
+        nota_str = resposta.split("NOTA:")[1].split()[0].replace("%", "")
+        nota = float(nota_str)
+    except:
+        nota = 70 
 
-    return {"nota": nota, "feedback": res}
+    return {"nota": nota, "feedback": resposta}
