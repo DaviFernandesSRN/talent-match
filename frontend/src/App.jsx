@@ -119,7 +119,6 @@ function App() {
                   
                   {/* CARD 1: CURRÍCULO */}
                   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm transition-all">
-                    {/* ESTILO FORÇADO PARA PRETO NO FUNDO BRANCO */}
                     <label className="font-bold mb-4 block" style={{ color: '#1e293b' }}>1. Currículo (PDF)</label>
                     <div className="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center">
                       <input type="file" accept=".pdf" onChange={(e) => setFile(e.target.files[0])} className="w-full text-sm text-slate-500" />
@@ -129,7 +128,6 @@ function App() {
                   {/* CARD 2: VAGA */}
                   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm transition-all">
                     <div className="flex justify-between mb-4 items-center">
-                      {/* ESTILO FORÇADO PARA PRETO NO FUNDO BRANCO */}
                       <label className="font-bold" style={{ color: '#1e293b' }}>2. Vaga</label>
                       <div className="flex bg-slate-100 rounded p-1">
                         <button onClick={() => setJobMode('text')} className={`px-2 py-0.5 text-xs rounded transition-all ${jobMode === 'text' ? 'bg-white shadow text-indigo-600' : 'text-slate-400'}`}>Texto</button>
@@ -146,42 +144,37 @@ function App() {
                   </div>
                   
                   <div className="lg:col-span-2 flex justify-end mt-4">
-                    <button 
-                      onClick={handleAnalyze} 
-                      disabled={loading} 
-                      className="px-8 py-4 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 shadow-xl transition-all hover:scale-105 active:scale-95"
-                    >
+                    <button onClick={handleAnalyze} disabled={loading} className="px-8 py-4 rounded-xl font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 shadow-xl transition-all hover:scale-105 active:scale-95">
                       {loading ? '⏳ Processando...' : '✨ Executar Análise'}
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* ... Restante do código (Resultados e Histórico) ... */}
               {result && (
                 <div className="space-y-6 pb-10">
-                  <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-lg">
+                  <div className="bg-white p-8 rounded-2xl border border-slate-200 flex items-center justify-between shadow-lg">
                     <div className="flex items-center gap-6">
                       <div className={`text-6xl font-black ${result.nota >= 70 ? 'text-emerald-500' : 'text-rose-500'}`}>{result.nota}%</div>
                       <div className="text-slate-400 uppercase text-xs font-bold tracking-widest">Aderência</div>
                     </div>
                     <PDFDownloadLink document={<ReportPDF fileName={file?.name} score={result.nota} feedback={editableFeedback} />} fileName={`TalentMatch_${file?.name}`}>
-                      <button className="bg-slate-800 dark:bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:opacity-90">📄 Baixar PDF</button>
+                      <button className="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold">📄 Baixar PDF</button>
                     </PDFDownloadLink>
                   </div>
 
-                  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors">
-                    <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50">
+                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="flex border-b border-slate-200 bg-slate-50">
                       <button onClick={() => setEditTab('preview')} className={`px-6 py-3 font-bold text-sm transition-all ${editTab === 'preview' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-400'}`}>👁️ Visualizar</button>
                       <button onClick={() => setEditTab('edit')} className={`px-6 py-3 font-bold text-sm transition-all ${editTab === 'edit' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-400'}`}>✍️ Editar</button>
                     </div>
                     <div className="p-8">
                       {editTab === 'preview' ? (
-                        <div className="prose prose-slate dark:prose-invert max-w-none transition-colors">
+                        <div className="prose prose-slate max-w-none transition-colors" style={{ color: '#1e293b' }}>
                           <ReactMarkdown>{editableFeedback}</ReactMarkdown>
                         </div>
                       ) : (
-                        <textarea className="w-full h-[500px] p-4 rounded-xl bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white font-mono text-sm border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500 leading-relaxed transition-colors" value={editableFeedback} onChange={(e) => setEditableFeedback(e.target.value)} />
+                        <textarea className="w-full h-[500px] p-4 rounded-xl bg-slate-50 text-slate-800 font-mono text-sm border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500" value={editableFeedback} onChange={(e) => setEditableFeedback(e.target.value)} />
                       )}
                     </div>
                   </div>
@@ -194,14 +187,14 @@ function App() {
           {view === 'history' && (
             <div className="space-y-4">
               {history.map(item => (
-                <div key={item.id} onClick={() => loadHistoryItem(item)} className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center hover:border-indigo-400 transition-all cursor-pointer group shadow-sm">
+                <div key={item.id} onClick={() => loadHistoryItem(item)} className="bg-white p-5 rounded-xl border border-slate-200 flex justify-between items-center hover:border-indigo-400 transition-all cursor-pointer group shadow-sm">
                   <div>
-                    <h4 className="font-bold text-slate-800 dark:text-slate-900">{item.candidateName}</h4>
+                    <h4 className="font-bold text-slate-800">{item.candidateName}</h4>
                     <p className="text-xs text-slate-500">{item.date} • {item.score}%</p>
                   </div>
                   <div className="flex items-center gap-6">
                     <button onClick={(e) => deleteHistoryItem(item.id, e)} className="p-2 text-slate-300 hover:text-red-500 transition-colors">🗑️</button>
-                    <span className="text-indigo-600 dark:text-indigo-400 font-bold text-sm group-hover:underline">Ver</span>
+                    <span className="text-indigo-600 font-bold text-sm group-hover:underline">Ver</span>
                   </div>
                 </div>
               ))}
