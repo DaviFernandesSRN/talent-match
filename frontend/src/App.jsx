@@ -21,7 +21,6 @@ function App() {
   useEffect(() => {
     const savedHistory = localStorage.getItem('tm_history');
     if (savedHistory) setHistory(JSON.parse(savedHistory));
-    // Título dinâmico
     document.title = user ? "TalentMatch | Enterprise" : "Login | TalentMatch";
   }, [user]);
 
@@ -85,8 +84,15 @@ function App() {
     }
   };
 
-  // Se não estiver logado, exibe a tela de login
   if (!user) return <Login onLogin={setUser} />;
+
+  // Função auxiliar para pegar iniciais de forma segura
+  const getInitials = (name) => {
+    if (!name) return "??";
+    const parts = name.split(' ');
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return name.substring(0, 2).toUpperCase();
+  };
 
   return (
     <div className={`flex h-screen overflow-hidden ${darkMode ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
@@ -106,17 +112,19 @@ function App() {
           </button>
         </nav>
 
-        {/* INFORMAÇÕES DO USUÁRIO LOGADO - AJUSTADO PARA DAVI FERNANDES CEO */}
+        {/* INFORMAÇÕES DO USUÁRIO DINÂMICO */}
         <div className="p-4 border-t border-slate-800">
-          <div className="flex items-center gap-3 px-2 py-3 mb-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
-            <div className="w-9 h-9 shrink-0 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-xs text-white">
-              DF
+          {user && (
+            <div className="flex items-center gap-3 px-2 py-3 mb-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
+              <div className="w-10 h-10 shrink-0 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-sm text-white shadow-lg">
+                {getInitials(user.name || user.email)}
+              </div>
+              <div className="overflow-hidden">
+                <p className="text-sm font-bold text-slate-100 truncate">{user.name || "Usuário"}</p>
+                <p className="text-[11px] text-slate-400 font-medium truncate">{user.role || "Membro TalentMatch"}</p>
+              </div>
             </div>
-            <div className="overflow-hidden">
-              <p className="text-xs font-bold text-slate-200 truncate">Davi Fernandes</p>
-              <p className="text-[10px] text-slate-500 font-medium">CEO - Fundador</p>
-            </div>
-          </div>
+          )}
           <button onClick={() => setUser(null)} className="w-full text-left px-4 py-3 text-red-400 hover:bg-red-900/20 rounded-xl transition-colors font-bold flex items-center gap-2">
             <span>🚪</span> Sair
           </button>
@@ -127,7 +135,7 @@ function App() {
       <main className="flex-1 overflow-y-auto p-6 lg:p-12 transition-colors duration-300">
         <div className="max-w-5xl mx-auto">
           <div className="mb-10 flex justify-between items-end">
-            <h2 className="text-3xl font-bold transition-colors" style={{ color: darkMode ? '#ffffff' : '#1e293b' }}>
+            <h2 className="text-3xl font-bold" style={{ color: darkMode ? '#ffffff' : '#1e293b' }}>
               {view === 'new' ? 'TalentMatch' : 'Histórico de Análises'}
             </h2>
           </div>
