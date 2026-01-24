@@ -92,27 +92,31 @@ function App() {
       {/* SIDEBAR */}
       <aside className="w-64 bg-slate-900 text-white flex flex-col hidden md:flex border-r border-slate-800">
         <div className="p-6 border-b border-slate-800 flex items-center gap-3">
-          <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center font-bold">🎯</div>
+          <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center font-bold text-white">🎯</div>
           <h1 className="text-lg font-bold text-white tracking-tight">TalentMatch</h1>
         </div>
         
         <nav className="flex-1 p-4 space-y-2">
           <button onClick={() => { setView('new'); setResult(null); }} className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${view === 'new' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-400'}`}>🚀 Nova Análise</button>
           <button onClick={() => setView('history')} className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${view === 'history' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-400'}`}>📂 Histórico</button>
-          <button onClick={() => setDarkMode(!darkMode)} className="w-full text-left px-4 py-3 text-slate-400 hover:bg-slate-800 rounded-xl mt-4"><span>{darkMode ? '☀️' : '🌙'}</span> Alternar Tema</button>
+          <button onClick={() => setDarkMode(!darkMode)} className="w-full text-left px-4 py-3 text-slate-400 hover:bg-slate-800 rounded-xl mt-4 flex items-center gap-2">
+            <span>{darkMode ? '☀️' : '🌙'}</span> Alternar Tema
+          </button>
         </nav>
 
-        {/* INFORMAÇÕES DO USUÁRIO (REINSERIDO AQUI) */}
+        {/* INFORMAÇÕES DO USUÁRIO LOGADO */}
         <div className="p-4 border-t border-slate-800">
-          <div className="flex items-center gap-3 px-2 py-3 mb-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-xs">
-              {user.email.substring(0, 2).toUpperCase()}
+          {user && user.email && (
+            <div className="flex items-center gap-3 px-2 py-3 mb-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-xs text-white">
+                {user.email.substring(0, 2).toUpperCase()}
+              </div>
+              <div className="overflow-hidden">
+                <p className="text-xs font-medium text-slate-200 truncate">{user.email}</p>
+                <p className="text-[10px] text-slate-500">Acesso Enterprise</p>
+              </div>
             </div>
-            <div className="overflow-hidden">
-              <p className="text-xs font-medium text-slate-200 truncate">{user.email}</p>
-              <p className="text-[10px] text-slate-500">Acesso Enterprise</p>
-            </div>
-          </div>
+          )}
           <button onClick={() => setUser(null)} className="w-full text-left px-4 py-3 text-red-400 hover:bg-red-900/20 rounded-xl transition-colors font-bold flex items-center gap-2">
             <span>🚪</span> Sair
           </button>
@@ -123,7 +127,7 @@ function App() {
       <main className="flex-1 overflow-y-auto p-6 lg:p-12 transition-colors duration-300">
         <div className="max-w-5xl mx-auto">
           <div className="mb-10 flex justify-between items-end">
-            <h2 className="text-3xl font-bold transition-colors" style={{ color: darkMode ? '#ffffff' : '#1e293b' }}>
+            <h2 className="text-3xl font-bold" style={{ color: darkMode ? '#ffffff' : '#1e293b' }}>
               {view === 'new' ? 'TalentMatch' : 'Histórico de Análises'}
             </h2>
           </div>
@@ -172,7 +176,11 @@ function App() {
                       <div className="text-slate-400 uppercase text-xs font-bold tracking-widest">Aderência</div>
                     </div>
                     <PDFDownloadLink document={<ReportPDF fileName={file?.name} score={result.nota} feedback={editableFeedback} />} fileName={`TalentMatch_${file?.name}`}>
-                      <button className="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold">📄 Baixar PDF</button>
+                      {({ loading: pdfLoading }) => (
+                        <button className="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold">
+                          {pdfLoading ? 'Gerando...' : '📄 Baixar PDF'}
+                        </button>
+                      )}
                     </PDFDownloadLink>
                   </div>
 
@@ -183,7 +191,7 @@ function App() {
                     </div>
                     <div className="p-8">
                       {editTab === 'preview' ? (
-                        <div className="prose prose-slate max-w-none transition-colors" style={{ color: '#1e293b' }}>
+                        <div className="prose prose-slate max-w-none" style={{ color: '#1e293b' }}>
                           <ReactMarkdown>{editableFeedback}</ReactMarkdown>
                         </div>
                       ) : (
@@ -191,7 +199,7 @@ function App() {
                       )}
                     </div>
                   </div>
-                  <button onClick={() => setResult(null)} className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">⬅ Nova Análise</button>
+                  <button onClick={() => setResult(null)} className="text-indigo-600 font-bold hover:underline">⬅ Nova Análise</button>
                 </div>
               )}
             </>
@@ -199,18 +207,22 @@ function App() {
 
           {view === 'history' && (
             <div className="space-y-4">
-              {history.map(item => (
-                <div key={item.id} onClick={() => loadHistoryItem(item)} className="bg-white p-5 rounded-xl border border-slate-200 flex justify-between items-center hover:border-indigo-400 transition-all cursor-pointer group shadow-sm">
-                  <div>
-                    <h4 className="font-bold text-slate-800">{item.candidateName}</h4>
-                    <p className="text-xs text-slate-500">{item.date} • {item.score}%</p>
+              {history.length === 0 ? (
+                <div className="text-center py-20 text-slate-400">Nenhuma análise no histórico.</div>
+              ) : (
+                history.map(item => (
+                  <div key={item.id} onClick={() => loadHistoryItem(item)} className="bg-white p-5 rounded-xl border border-slate-200 flex justify-between items-center hover:border-indigo-400 transition-all cursor-pointer group shadow-sm">
+                    <div>
+                      <h4 className="font-bold text-slate-800">{item.candidateName}</h4>
+                      <p className="text-xs text-slate-500">{item.date} • {item.score}%</p>
+                    </div>
+                    <div className="flex items-center gap-6">
+                      <button onClick={(e) => deleteHistoryItem(item.id, e)} className="p-2 text-slate-300 hover:text-red-500">🗑️</button>
+                      <span className="text-indigo-600 font-bold text-sm group-hover:underline">Ver</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-6">
-                    <button onClick={(e) => deleteHistoryItem(item.id, e)} className="p-2 text-slate-300 hover:text-red-500">🗑️</button>
-                    <span className="text-indigo-600 font-bold text-sm group-hover:underline">Ver</span>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           )}
         </div>
