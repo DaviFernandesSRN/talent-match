@@ -18,7 +18,7 @@ export function Login({ onLogin }) {
       onLogin({ name: 'Carol Rocha', role: 'Product Manager', avatar: 'CR' });
     } 
     else if (email === 'davifernandes@talentmatch.com' && password === 'admin123') {
-      onLogin({ name: 'Davi Fernandes', role: 'CEO-ADM', avatar: 'DF' });
+      onLogin({ name: 'Davi Fernandes', role: 'CEO - Fundador', avatar: 'DF' });
     } 
     else {
       alert('⚠️ Credenciais inválidas. Use os dados da dica abaixo.');
