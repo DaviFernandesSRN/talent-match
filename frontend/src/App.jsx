@@ -95,12 +95,28 @@ function App() {
           <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center font-bold">🎯</div>
           <h1 className="text-lg font-bold text-white tracking-tight">TalentMatch</h1>
         </div>
+        
         <nav className="flex-1 p-4 space-y-2">
           <button onClick={() => { setView('new'); setResult(null); }} className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${view === 'new' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-400'}`}>🚀 Nova Análise</button>
           <button onClick={() => setView('history')} className={`w-full text-left px-4 py-3 rounded-xl transition-colors ${view === 'history' ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 text-slate-400'}`}>📂 Histórico</button>
           <button onClick={() => setDarkMode(!darkMode)} className="w-full text-left px-4 py-3 text-slate-400 hover:bg-slate-800 rounded-xl mt-4"><span>{darkMode ? '☀️' : '🌙'}</span> Alternar Tema</button>
-          <button onClick={() => setUser(null)} className="w-full text-left px-4 py-3 text-red-400 hover:bg-red-900/20 rounded-xl transition-colors mt-auto font-bold">🚪 Sair</button>
         </nav>
+
+        {/* INFORMAÇÕES DO USUÁRIO (REINSERIDO AQUI) */}
+        <div className="p-4 border-t border-slate-800">
+          <div className="flex items-center gap-3 px-2 py-3 mb-2 bg-slate-800/50 rounded-lg border border-slate-700/50">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-xs">
+              {user.email.substring(0, 2).toUpperCase()}
+            </div>
+            <div className="overflow-hidden">
+              <p className="text-xs font-medium text-slate-200 truncate">{user.email}</p>
+              <p className="text-[10px] text-slate-500">Acesso Enterprise</p>
+            </div>
+          </div>
+          <button onClick={() => setUser(null)} className="w-full text-left px-4 py-3 text-red-400 hover:bg-red-900/20 rounded-xl transition-colors font-bold flex items-center gap-2">
+            <span>🚪</span> Sair
+          </button>
+        </div>
       </aside>
 
       {/* CONTEÚDO PRINCIPAL */}
@@ -116,8 +132,6 @@ function App() {
             <>
               {!result && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8 relative">
-                  
-                  {/* CARD 1: CURRÍCULO */}
                   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm transition-all">
                     <label className="font-bold mb-4 block" style={{ color: '#1e293b' }}>1. Currículo (PDF)</label>
                     <div className="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center">
@@ -125,7 +139,6 @@ function App() {
                     </div>
                   </div>
                   
-                  {/* CARD 2: VAGA */}
                   <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm transition-all">
                     <div className="flex justify-between mb-4 items-center">
                       <label className="font-bold" style={{ color: '#1e293b' }}>2. Vaga</label>
@@ -193,7 +206,7 @@ function App() {
                     <p className="text-xs text-slate-500">{item.date} • {item.score}%</p>
                   </div>
                   <div className="flex items-center gap-6">
-                    <button onClick={(e) => deleteHistoryItem(item.id, e)} className="p-2 text-slate-300 hover:text-red-500 transition-colors">🗑️</button>
+                    <button onClick={(e) => deleteHistoryItem(item.id, e)} className="p-2 text-slate-300 hover:text-red-500">🗑️</button>
                     <span className="text-indigo-600 font-bold text-sm group-hover:underline">Ver</span>
                   </div>
                 </div>
